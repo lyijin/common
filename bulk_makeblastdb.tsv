@@ -1,0 +1,20 @@
+# data hosted on reefgenomics.org
+smic_genome	nucl	Symbiodinium microadriaticum genome (Aranda, 2016)
+smic_prots	prot	Symbiodinium microadriaticum gene models (Aranda, 2016)
+smic_tx_models	nucl	Symbiodinium microadriaticum gene models (Aranda, 2016)
+spis_genome	nucl	Stylophora pistillata genome (Voolstra, unpubl.)
+spis_prots	prot	Stylophora pistillata gene models (Voolstra, unpubl.)
+spis_tx_models	nucl	Stylophora pistillata gene models (Voolstra, unpubl.)
+
+# publically available data but not hosted on reefgenomics.org
+adig_genome	nucl	Acropora digitifera genome (Shinzato, 2011)
+adig_prots	prot	Acropora digitifera gene models (Shinzato, 2011)
+adig_tx_models	nucl	Acropora digitifera gene models (Shinzato, 2011)
+hmag_prots	prot	Hydra magnipapillata gene models (Chapman, 2010)
+nvec_prots	prot	Nematostella vectensis (Putnam, 2007)
+skaw_genome	nucl	Symbiodinium kawagutii genome (Li, 2015)
+skaw_prots	prot	Symbiodinium kawagutii gene models (Li, 2015)
+skaw_tx_models	nucl	Symbiodinium kawagutii gene models (Li, 2015)
+smin_genome	nucl	Symbiodinium minutum genome (Shoguchi, 2013)
+smin_prots	prot	Symbiodinium minutum gene models (Shoguchi, 2013)
+smin_tx_models	nucl	Symbiodinium minutum gene models (Shoguchi, 2013)

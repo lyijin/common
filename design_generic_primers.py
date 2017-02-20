@@ -21,9 +21,8 @@ import parse_fasta
 import primer3_api
 
 parser = argparse.ArgumentParser(description="""
-When given a gene name and the exon/intron number for which primers have to
-be designed for, brute-force primers that fit all primer design criteria, as 
-well as being are roughly spaced apart equally from each other.""")
+When given a scaffold name and rough coordinates of the desired amplicon region,
+design primers that fit generic primer design criteria.""")
 
 parser.add_argument('genome_fasta', metavar='fasta_filename',
                     type=argparse.FileType('r'),
@@ -33,8 +32,6 @@ parser.add_argument('desired_amplicons', metavar='tsv_filename',
                     help='''Tab-delimited file containing gene and desired 
                             exon/intron (i.e. 'SpisGene10907    4'). One line 
                             per desired amplicon.''')
-parser.add_argument('--intron_primers', '-i', type=int, default=5,
-                    help='Number of primers designed within intron.')
 parser.add_argument('--polyx', action='store_true', default=False,
                     help='Allow primers to have poly-X stretches of > 5.')
 parser.add_argument('--wobble', type=int, default=20,

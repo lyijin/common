@@ -3,19 +3,21 @@
 """
 > convert_csv_to_tsv.py <
 
-Does what it says on the tin - converts csv to tsv.
+Does what it says on the tin - converts csv to tsv. By default, takes in
+stdin and pipes to stdout.
 """
 import argparse
 import csv
-
-import natural_sort
+import sys
 
 parser = argparse.ArgumentParser(description="""
-Does what it says on the tin - converts csv to tsv.""")
+Does what it says on the tin - converts csv to tsv. By default, takes in
+stdin and pipes to stdout.""")
 
 parser.add_argument('csv_file', metavar='csv_file',
-                    type=argparse.FileType('r'),
-                    help='a csv file.')
+                    type=argparse.FileType('r'), nargs='?',
+                    default=sys.stdin, help='a csv file.')
+
 args = parser.parse_args()
 
 # read data

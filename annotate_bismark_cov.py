@@ -98,17 +98,19 @@ def calc_displacement(seq, coords, return_type='all'):
     
     # go upstream (scaffold's perspective) first
     s_coord = min(coords)
-    while seq[s_coord-1] == seq[min(coords)] and s_coord > 0:
-        s_coord -= 1
-        if s_coord == 0:
-            break
+    if s_coord > 0:
+        while seq[s_coord-1] == seq[min(coords)]:
+            s_coord -= 1
+            if s_coord == 0:
+                break
     
     # then downstream (scaffold's perspective)
     e_coord = max(coords)
-    while seq[e_coord] == seq[max(coords)-1] and e_coord < len(seq):
-        e_coord += 1
-        if e_coord == len(seq):
-            break
+    if e_coord < len(seq):
+        while seq[e_coord] == seq[max(coords)-1]:
+            e_coord += 1
+            if e_coord == len(seq):
+                break
     
     feature_coord = [s_coord, e_coord]
     # if original start coord > end coord, flip the coords of feature_coord,
