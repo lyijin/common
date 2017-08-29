@@ -32,7 +32,7 @@ Script requires a _file object_ (not filename).
 import re
 
 # hardcode filename - it's not often that this gets changed anyway *shrug*
-go_term_file = open('/lithium/data_repo/goa/go-basic_160714.obo')
+go_term_file = open('/lithium/data_repo/goa/go-basic.obo')
 
 go_entries = go_term_file.read().split('[Term]')
 go_entries.pop(0)
@@ -135,8 +135,10 @@ def bin_go_terms_by_namespace(list_go_terms):
 
 
 if __name__ == '__main__':
-    print (get_property('GO:0036105', 'namespace'))
-    print (get_all_parent_terms('GO:0000003'))
+    print (get_property('GO:0036105', 'namespace')) # 'molecular_function'
+    print (get_all_parent_terms('GO:0000003'))      # ['GO:0000003', 'GO:0008150']
+    print (get_all_parent_terms('GO:0000113'))      # ['GO:0000109', 'GO:0000113', 'GO:0005575', 'GO:0032991', 'GO:0043234', 'GO:0044422', 'GO:0044424', 'GO:0044428', 'GO:0044446', 'GO:0044464', 'GO:1990391']
+    print (get_all_parent_terms('GO:0000001'))
     print (bin_go_terms_by_namespace(get_all_parent_terms('GO:0000003') +
                                      get_all_parent_terms('GO:0000113') +
                                      get_all_parent_terms('GO:0000001')))

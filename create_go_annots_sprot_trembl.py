@@ -61,7 +61,7 @@ for line in trembl_tsv:
 
 all_uniprot_id = set(transcript_uniprot_id.values())
 
-goa_tsv = open('/lithium/data_repo/goa/gp_association.goa_uniprot.parsed.tsv')
+goa_tsv = open('/lithium/data_repo/goa/goa_uniprot_all.parsed.gaf')
 # create dictionary to translate the six-character UniProt ID into GO terms
 goa_data = {}
 for line in goa_tsv:

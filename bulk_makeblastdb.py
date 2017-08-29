@@ -15,11 +15,16 @@ argparse MUST match these filenames identically.
 
 Passing 'all' as the filename will process ALL files contained in the hardcoded
 file. Use with caution.
+
+NOTE: to prevent SequenceServer keeling over, FASTA sequences will have trailing
+stop codons ('*') removed and internal stop codons replaced with 'X'.
 """
 import argparse
 import csv
 import os
+import re
 import subprocess
+import tempfile
 
 parser = argparse.ArgumentParser(description='''
 Script to automate the makeblastdb process of (re-)making BLAST databases.''')
@@ -51,7 +56,20 @@ for f in filenames:
     if f not in blast_dict:
         print (f, 'not found in hardcoded input file!')
     else:
-        subprocess.run(['makeblastdb', '-in', f, 
-                                       '-dbtype', blast_dict[f][0],
-                                       '-title', blast_dict[f][1], 
-                                       '-parse_seqids'])
+        # replace/remove stop codons appropriately
+        # note: while these steps can be easily accomplished with sed (via
+        #       subprocess), there's a chance that malicious filenames might
+        #       compromise the system
+        sequences = open(f).read()
+        sequences = re.sub('\*\n>', '\n>', sequences)
+        sequences = re.sub('\*', 'X', sequences)
+        
+        with tempfile.NamedTemporaryFile() as tf:
+            tf.write(sequences.encode())
+            tf.seek(0)
+            
+            subprocess.run(['makeblastdb', '-in', tf.name,
+                                           '-out', f,
+                                           '-dbtype', blast_dict[f][0],
+                                           '-title', blast_dict[f][1], 
+                                           '-parse_seqids'])

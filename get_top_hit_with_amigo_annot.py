@@ -50,13 +50,13 @@ for row in tsv_reader:
 # create list of UniProtKB IDs with GO terms
 uniprot_ids_with_go = []
 
-goa_tsv = '/lithium/data_repo/goa/gp_association.goa_uniprot.unique_ids.tsv'
-with open(goa_tsv, newline='') as tsv_file:
-    tsv_reader = csv.reader(tsv_file, delimiter='\t')
-    
-    for row in tsv_reader:
-        if row:     # skips empty rows
-            uniprot_ids_with_go.append(row[0])
+goa_tsv = '/lithium/data_repo/goa/goa_uniprot_all.unique_ids.txt'
+with open(goa_tsv) as f:
+    for line in f:
+        line = line.strip()
+        
+        if line:     # skips empty rows
+            uniprot_ids_with_go.append(line)
 
 print ('finish go reading!', time.time() - start_time, file=sys.stderr)
 

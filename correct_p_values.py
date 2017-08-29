@@ -1,13 +1,13 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 > correct_p_values.py <
 
-Has a def to correct P values (to produce q values), which by default
-is Benjamini-Hochberg (1995). Also incorporates the FDR adjustment from 
+Corrects p values to produce q values. By default, multiple correction uses
+Benjamini-Hochberg (1995). Also incorporates the FDR adjustment from 
 Yekuteli and Benjamini (1999), which ensures monotonicity (i.e. rankings are
 identical pre- and post-correction). This was a problem in B-H because all
-P values are multiplied by different values (sample population / rank), which 
+p values are multiplied by different values (sample population / rank), which 
 might cause rankings to shift due to the different multiplications.
 
 See:
@@ -20,7 +20,9 @@ R's code in implementing B-H
         pmin(1, cummin(n/i * p[o]))[ro]
     }
 """
+import argparse
 import collections
+import sys
 
 def correct_p_values(p_values_dict, method='BH'):
     """
@@ -72,11 +74,34 @@ def correct_p_values(p_values_dict, method='BH'):
             prev_p_value = ordered_p_values[p]
     
     return ordered_p_values
-    
-if __name__ == '__main__':
+
+def test_function():
     test = [0.01, 0.011, 0.02, 0.021, 0.022, 0.022, 0.023, 0.024, 0.025, 0.1]
     test_dict = {n:x for n,x in enumerate(test)}
     print (test_dict)
     print (correct_p_values(test_dict, 'BH'))
     print (correct_p_values(test_dict, 'Bonferroni'))
     print (correct_p_values(test_dict, 'Holm'))
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="""
+    Corrects p values to produce q values. Requires an input file with a
+    single column of uncorrected p values. Reads from stdin by default, unless
+    a filename is provided.""")
+    parser.add_argument('txt_file', metavar='txt_file',
+                        type=argparse.FileType('r'), nargs='?',
+                        default=sys.stdin,
+                        help='uncorrected p values, one per line.')
+    parser.add_argument('--method', type=str, default='BH',
+                        help='can either be "BH", "Bonferroni" or "Holm".')
+    
+    args = parser.parse_args()
+    
+    uncorr_p_vals = [float(x) for x in args.txt_file.read().strip().split('\n')]
+    uncorr_p_dict = {n:x for n,x in enumerate(uncorr_p_vals)}
+    
+    corr_p_dict = correct_p_values(uncorr_p_dict, args.method)
+    
+    # print corrected p values in the order of the input list
+    for n in range(len(corr_p_dict)):
+        print (corr_p_dict[n])

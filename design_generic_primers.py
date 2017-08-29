@@ -42,6 +42,8 @@ args = parser.parse_args()
 # allow for primer to start +- WOBBLE_WINDOW base pairs of the intended site
 WOBBLE_WINDOW = args.wobble
 
+MAX_PRIMER_LEN = 37
+
 def reverse_complement(seq):
     seq = seq.replace('U', 'T')
 
@@ -78,8 +80,7 @@ def find_optimal_primer(scaffold_name, desired_location, primer_type,
     for a in range(-WOBBLE_WINDOW, WOBBLE_WINDOW):
         # optimal primer lengths are 18-23 (primer3 defaults), but extended
         # to 36 when designing for bisulphite-converted DNA - GC% is low.
-        max_primer_len = 37
-        for p_len in range(18, max_primer_len):
+        for p_len in range(18, MAX_PRIMER_LEN):
             amp_start = a + desired_location
             
             scaffold_sequence = genome_sequences[scaffold_name]
@@ -168,10 +169,6 @@ print ('Gene', 'Scaffold',
        'Outer forward', 'Outer reverse', 
        'OF: loc | len | Tm | GC', 'OR: loc | len | Tm | GC',
        'Warnings', sep='\t')
-
-# test gene + exon/intron number
-# desired_amplicons = [('AIPGENE5756_gene', 6),   # watson
-                     # ('AIPGENE21488_gene', 2)]  # crick
 
 # read in desired amplicon
 desired_amplicons = []

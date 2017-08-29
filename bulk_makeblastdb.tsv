@@ -5,6 +5,10 @@ smic_tx_models	nucl	Symbiodinium microadriaticum gene models (Aranda, 2016)
 spis_genome	nucl	Stylophora pistillata genome (Voolstra, unpubl.)
 spis_prots	prot	Stylophora pistillata gene models (Voolstra, unpubl.)
 spis_tx_models	nucl	Stylophora pistillata gene models (Voolstra, unpubl.)
+plut_genome	nucl	Porites lutea genome (Ying, unpubl.)
+plut_prots	prot	Porites lutea gene models (Ying, unpubl.)
+pdae_genome	nucl	Platygyra daedalea genome (Wang, unpubl.)
+pdae_prots	prot	Platygyra daedalea gene models (Wang, unpubl.)
 
 # publically available data but not hosted on reefgenomics.org
 adig_genome	nucl	Acropora digitifera genome (Shinzato, 2011)

@@ -13,6 +13,8 @@ import csv
 import re
 import sys
 
+import natural_sort
+
 parser = argparse.ArgumentParser(description="""
 Script to merge similar tsvs together, by checking common keys in the first
 column.
@@ -32,13 +34,6 @@ parser.add_argument('--col', '-c', metavar="retained_columns",
 parser.add_argument('-v', action='store_true',
                     help="verbose mode, prints extra details to stderr.")
 args = parser.parse_args()
-
-def natural_sort(input_list):
-    tryint = lambda x: int(x) if x.isdigit() else x
-    chunked_text = lambda x: [tryint(y) for y in re.split('([0-9]+)', x)]
-    sorted_list = sorted(input_list, key=chunked_text)
-
-    return sorted_list
 
 giant_dict = {}
 max_cols = len(args.col) if args.col else 0
@@ -100,6 +95,6 @@ if args.header:
                                 if c not in args.key])
     print ('\t'.join([header_key] + [header_val] * len(args.tsv_files)))
     
-for g in natural_sort(giant_dict):
+for g in natural_sort.natural_sort(giant_dict):
     print ('\t'.join([g] + [giant_dict[g][x.name] if x.name in giant_dict[g]
                             else '\t' * (max_cols - 1) for x in args.tsv_files]))

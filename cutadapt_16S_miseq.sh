@@ -16,7 +16,8 @@
 outfile=`echo ${5} | sed 's/.fastq$//' | sed 's/.fq$//'`.trim.fastq
 logfile=`echo ${5} | sed 's/.fastq$//' | sed 's/.fq$//'`.trim.log
 
-cutadapt -O 10 -q 20,20 -m 25 --trim-n  \
+# -q 20,20 changed to 5,5 to deal with low quality library
+cutadapt -O 10 -q 5,5 -m 25 --trim-n  \
          -b AATGATACGGCGACCACCGAGATCTACAC${1}TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG \
          -b CTGTCTCTTATACACATCTCCGAGCCCACGAGAC${4}ATCTCGTATGCCGTCTTCTGCTTG \
          -B CTGTCTCTTATACACATCTGACGCTGCCGACGA${2}GTGTAGATCTCGGTGGTCGCCGTATCATT \
