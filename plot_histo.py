@@ -88,7 +88,7 @@ if args.kde and args.bw:
 sns.set_style('white')
 sns.set_style('ticks')
 #sns.set_palette('husl', len(args.tsv_file) + 1)
-plt.figure(figsize=(8, 5))       # smaller text
+fig, ax = plt.subplots(figsize=(8, 5))       # smaller text
 for d in sorted(data):
     sns.distplot(np.array(data[d]), bins=desired_bins, kde=args.kde, 
                  hist_kws={'alpha': 0.3}, kde_kws=kde_kws, 
@@ -99,7 +99,7 @@ plt.legend(title='File', loc=9, ncol=1)
 
 if args.xlim:
     xlim_range = max(args.xlim) - min(args.xlim)
-    sns.plt.xlim(args.xlim[0] - .02 * xlim_range, args.xlim[1] + .02 * xlim_range)
+    ax.set_xlim(args.xlim[0] - .02 * xlim_range, args.xlim[1] + .02 * xlim_range)
 
 sns.despine(offset=10, trim=True)
 

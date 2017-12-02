@@ -11,7 +11,7 @@ reasonable size) so it's up to the user to vet the primers for their
 suitability!
 
 Input requirements:
-<gene/amplicon_name> \t <scaffold_name> \t <start_coords> \t <end_coords>
+<gene/amplicon_name> \t <scaffold_name> \t <start_coord> \t <end_coord>
 """
 import argparse
 import csv
@@ -29,9 +29,10 @@ parser.add_argument('genome_fasta', metavar='fasta_filename',
                     help='Genome FASTA file.')
 parser.add_argument('desired_amplicons', metavar='tsv_filename',
                     type=argparse.FileType('r'),
-                    help='''Tab-delimited file containing gene and desired 
-                            exon/intron (i.e. 'SpisGene10907    4'). One line 
-                            per desired amplicon.''')
+                    help='''Tab-delimited file with four columns:
+                            <gene/amplicon_name> <scaffold_name>
+                            <start_coord> <end_coord>.
+                            One line per desired amplicon.''')
 parser.add_argument('--polyx', action='store_true', default=False,
                     help='Allow primers to have poly-X stretches of > 5.')
 parser.add_argument('--wobble', type=int, default=20,
