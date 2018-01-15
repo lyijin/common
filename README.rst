@@ -6,7 +6,7 @@ Personal preferences and coding styles are listed below.
 
 Python
 ------
-- Python 3. Some scripts use features that was made possible in later versions (e.g. ``print (\*foo, \*bar)``, only possible in Python 3.4). For best results, use the *latest* version of Python 3.
+- Python 3. Some scripts use features that was made possible in later versions (e.g. ``print (*foo, *bar)``, only possible in Python 3.4). For best results, use the *latest* version of Python 3.
 - Follows PEP8 as closely as possible, 80 chars per line, with some exceptions.
 - Four spaces, not tabs.
 - Imports: libraries in standard library (e.g. ``argparse``, ``collections``, ``csv``, ...) first, followed by very common scientific Python libraries (e.g. ``numpy``, ``scipy``, ``pandas``, ...), then my own custom scripts (e.g. ``natural_sort``, ``parse_*``, ...).
