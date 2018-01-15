@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 > parse_clstr.py <
@@ -52,6 +52,5 @@ args = parser.parse_args()
 clusters = parse_clstr(args.clstr_file)
 
 for c in natural_sort.natural_sort(clusters):
-    if len(clusters[c]) > 1:
-        for d in natural_sort.natural_sort(clusters[c]):
-            print (d)
+    d = natural_sort.natural_sort(clusters[c])
+    print (c, ','.join(d), sep='\t')
