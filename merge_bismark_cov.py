@@ -5,9 +5,13 @@
 
 Given vanilla/augmented bismark cov files, combine the meth and unmeth reads
 together, recompute the meth %, and leave everything else unchanged.
+
+Script is able to detect and automatically decompress files that are gzip-
+compressed (i.e. *.cov.gz).
 """
 import argparse
 import csv
+import gzip
 import sys
 
 import natural_sort
@@ -28,7 +32,12 @@ args = parser.parse_args()
 combined_data = {}
 counter_rows = 0
 for c in args.cov_files:
-    tsv_reader = csv.reader(c, delimiter='\t')
+    # detect whether filename ends with 'gz'
+    if c.name[-2:] == 'gz':
+        tsv_reader = csv.reader(gzip.open(c.name, 'rt'), delimiter='\t')
+    else:
+        tsv_reader = csv.reader(c, delimiter='\t')
+    
     for row in tsv_reader:
         if not row: continue
         
