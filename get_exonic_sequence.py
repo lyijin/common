@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 """
-> get_intronic_sequence.py <
+> get_exonic_sequence.py <
 
-Based on input genome fasta and gff3 files, parse _intronic_ sequences of each
+Based on input genome fasta and gff3 files, parse _exonic_ sequences of each
 gene.
 """
 import argparse
@@ -23,7 +23,7 @@ def reverse_complement(seq):
     return seq
 
 parser = argparse.ArgumentParser(description="""
-Based on input genome fasta and gff3 files, parse _intronic_ sequences of each
+Based on input genome fasta and gff3 files, parse _exonic_ sequences of each
 gene.""")
 
 parser.add_argument('genome_fasta', metavar="fasta_file",
@@ -51,22 +51,12 @@ for scaf in scaffold_gff3:
         tx = list(scaffold_gff3[scaf][gene].mRNAs.keys())[0]
         mrna_coords = scaffold_gff3[scaf][gene].mRNAs[tx].details['exon']
         
-        # get intron coords, then construct the intronic sequence
-        exon_starts = [x for x, y in mrna_coords]
-        exon_ends = [y for x, y in mrna_coords]
-        
-        if len(exon_starts) < 2:
-            # there's only 1 exon, i.e. no introns are present
-            continue
-        
-        intron_coords = [(x, y) for x, y in zip(exon_ends[:-1], exon_starts[1:])]
-        
-        intron_seq = ''
-        for i in intron_coords:
+        exon_seq = ''
+        for i in mrna_coords:
             temp = genome_fasta[scaf][min(i):max(i)]
             if gene_on_crick: temp = reverse_complement(temp)
             
-            intron_seq += temp
+            exon_seq += temp
         
         print ('>' + gene)
-        print (intron_seq)
+        print (exon_seq)
