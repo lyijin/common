@@ -21,6 +21,7 @@ stop codons ('*') removed and internal stop codons replaced with 'X'.
 """
 import argparse
 import csv
+import gzip
 import os
 import re
 import subprocess
@@ -29,7 +30,7 @@ import tempfile
 parser = argparse.ArgumentParser(description='''
 Script to automate the makeblastdb process of (re-)making BLAST databases.''')
 
-parser.add_argument('fasta_file', metavar='fasta_file',
+parser.add_argument('database_name', metavar='database_name',
                     type=str, nargs='+',
                     help='FASTA files for makeblastdb.')
 
@@ -45,12 +46,12 @@ for row in tsv_reader:
     if not row: continue
     if row[0][0] == '#': continue       # ignore commented lines
     
-    blast_dict[row[0]] = (row[1], row[2])
+    blast_dict[row[0]] = (row[1], row[2], row[3])
 
-if args.fasta_file == ['all']:
+if args.database_name == ['all']:
     filenames = [x for x in blast_dict]
 else:
-    filenames = args.fasta_file
+    filenames = args.database_name
 
 for f in filenames:
     if f not in blast_dict:
@@ -60,7 +61,14 @@ for f in filenames:
         # note: while these steps can be easily accomplished with sed (via
         #       subprocess), there's a chance that malicious filenames might
         #       compromise the system
-        sequences = open(f).read()
+        db_filename = blast_dict[f][2]
+        
+        # crude way to determine whether file is gzipped or not
+        if db_filename[-3:] == '.gz':
+            sequences = gzip.open(blast_dict[f][2], 'rt').read()
+        else:
+            sequences = open(blast_dict[f][2]).read()
+        
         sequences = re.sub('\*\n>', '\n>', sequences)
         sequences = re.sub('\*', 'X', sequences)
         
@@ -73,3 +81,6 @@ for f in filenames:
                                            '-dbtype', blast_dict[f][0],
                                            '-title', blast_dict[f][1], 
                                            '-parse_seqids'])
+        
+        print ('SUCCESS: database {} created, with type {} and title "{}"'.format(
+            f, blast_dict[f][0], blast_dict[f][1]))

@@ -1,24 +1,33 @@
 # data hosted on reefgenomics.org
-smic_genome	nucl	Symbiodinium microadriaticum genome (Aranda, 2016)
-smic_prots	prot	Symbiodinium microadriaticum gene models (Aranda, 2016)
-smic_tx_models	nucl	Symbiodinium microadriaticum gene models (Aranda, 2016)
-spis_genome	nucl	Stylophora pistillata genome (Voolstra, unpubl.)
-spis_prots	prot	Stylophora pistillata gene models (Voolstra, unpubl.)
-spis_tx_models	nucl	Stylophora pistillata gene models (Voolstra, unpubl.)
-plut_genome	nucl	Porites lutea genome (Ying, unpubl.)
-plut_prots	prot	Porites lutea gene models (Ying, unpubl.)
-pdae_genome	nucl	Platygyra daedalea genome (Wang, unpubl.)
-pdae_prots	prot	Platygyra daedalea gene models (Wang, unpubl.)
+smic_genome	nucl	Symbiodinium microadriaticum genome (Aranda, 2016)	
+smic_prots	prot	Symbiodinium microadriaticum gene models (Aranda, 2016)	
+smic_tx_models	nucl	Symbiodinium microadriaticum gene models (Aranda, 2016)	
+spis_genome	nucl	Stylophora pistillata genome (Voolstra, 2017)	/home/liewy/kaust/dual_genome/raw_data/Spis.genome.scaffold.final.fa
+spis_prots	prot	Stylophora pistillata gene models (Voolstra, 2017)	/home/liewy/kaust/dual_genome/raw_data/Spis.genome.annotation.pep.longest.fa
+spis_tx_models	nucl	Stylophora pistillata gene models (Voolstra, 2017)	/home/liewy/kaust/dual_genome/raw_data/Spis.genome.annotation.CDS.longest.short_annot.fa
+aten_genome	nucl	Acropora tenuis genome (ReFuGe 2020)	/home/liewy/kaust/refuge2020/aten_final_0.11.fasta.gz
+aten_prots	prot	Acropora tenuis gene models (ReFuGe 2020)	/home/liewy/kaust/refuge2020/aten_0.11.maker_post_001.proteins.fasta.gz
+ffun_genome	nucl	Fungia spp. genome (ReFuGe 2020)	/home/liewy/kaust/refuge2020/ffun_final_1.0.fasta.gz
+ffun_prots	prot	Fungia spp. gene models (ReFuGe 2020)	/home/liewy/kaust/refuge2020/ffun_1.0.proteins.fasta.gz
+gasp_genome	nucl	Goniastrea aspera genome (ReFuGe 2020)	/home/liewy/kaust/refuge2020/gasp_final_1.0.fasta.gz
+gasp_prots	prot	Goniastrea aspera gene models (ReFuGe 2020)	/home/liewy/kaust/refuge2020/gasp_1.0.proteins.fasta.gz
+gfas_genome	nucl	Galaxea fascicularis genome (ReFuGe 2020)	/home/liewy/kaust/refuge2020/gfas_final_1.0.fasta.gz
+gfas_prots	prot	Galaxea fascicularis gene models (ReFuGe 2020)	/home/liewy/kaust/refuge2020/gfas_1.0.proteins.fasta.gz
+plut_genome	nucl	Porites lutea genome (ReFuGe 2020)	/home/liewy/kaust/refuge2020/plut_final_2.1.fasta.gz
+plut_prots	prot	Porites lutea gene models (ReFuGe 2020)	/home/liewy/kaust/refuge2020/plut2v1.1.proteins.fasta.gz
+pspe_genome	nucl	Pachyseris speciosa genome (ReFuGe 2020)	/home/liewy/kaust/refuge2020/pspe_final_0.1.fasta.gz
+pdae_genome	nucl	Platygyra daedalea genome (Wang, unpubl.)	
+pdae_prots	prot	Platygyra daedalea gene models (Wang, unpubl.)	
 
 # publically available data but not hosted on reefgenomics.org
-adig_genome	nucl	Acropora digitifera genome (Shinzato, 2011)
-adig_prots	prot	Acropora digitifera gene models (Shinzato, 2011)
-adig_tx_models	nucl	Acropora digitifera gene models (Shinzato, 2011)
-hmag_prots	prot	Hydra magnipapillata gene models (Chapman, 2010)
-nvec_prots	prot	Nematostella vectensis (Putnam, 2007)
-skaw_genome	nucl	Symbiodinium kawagutii genome (Li, 2015)
-skaw_prots	prot	Symbiodinium kawagutii gene models (Li, 2015)
-skaw_tx_models	nucl	Symbiodinium kawagutii gene models (Li, 2015)
-smin_genome	nucl	Symbiodinium minutum genome (Shoguchi, 2013)
-smin_prots	prot	Symbiodinium minutum gene models (Shoguchi, 2013)
-smin_tx_models	nucl	Symbiodinium minutum gene models (Shoguchi, 2013)
+adig_genome	nucl	Acropora digitifera genome (Shinzato, 2011)	
+adig_prots	prot	Acropora digitifera gene models (Shinzato, 2011)	
+adig_tx_models	nucl	Acropora digitifera gene models (Shinzato, 2011)	
+hmag_prots	prot	Hydra magnipapillata gene models (Chapman, 2010)	
+nvec_prots	prot	Nematostella vectensis (Putnam, 2007)	
+skaw_genome	nucl	Symbiodinium kawagutii genome (Li, 2015)	
+skaw_prots	prot	Symbiodinium kawagutii gene models (Li, 2015)	
+skaw_tx_models	nucl	Symbiodinium kawagutii gene models (Li, 2015)	
+smin_genome	nucl	Symbiodinium minutum genome (Shoguchi, 2013)	
+smin_prots	prot	Symbiodinium minutum gene models (Shoguchi, 2013)	
+smin_tx_models	nucl	Symbiodinium minutum gene models (Shoguchi, 2013)	
