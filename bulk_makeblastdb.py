@@ -57,10 +57,6 @@ for f in filenames:
     if f not in blast_dict:
         print (f, 'not found in hardcoded input file!')
     else:
-        # replace/remove stop codons appropriately
-        # note: while these steps can be easily accomplished with sed (via
-        #       subprocess), there's a chance that malicious filenames might
-        #       compromise the system
         db_filename = blast_dict[f][2]
         
         # crude way to determine whether file is gzipped or not
@@ -69,6 +65,10 @@ for f in filenames:
         else:
             sequences = open(blast_dict[f][2]).read()
         
+        # replace/remove stop codons appropriately
+        # note: while these steps can be easily accomplished with sed (via
+        #       subprocess), there's a chance that malicious filenames might
+        #       compromise the system        
         sequences = re.sub('\*\n>', '\n>', sequences)
         sequences = re.sub('\*', 'X', sequences)
         
