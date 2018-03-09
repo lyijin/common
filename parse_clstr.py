@@ -3,16 +3,15 @@
 """
 > parse_clstr.py <
 
-Parses cd-hit-est's .clstr files, produces a dictionary containing clusters
-in the following format:
+Contains a function to parse cd-hit-est's .clstr files and returns a dictionary
+containing clusters in the following format:
   cluster[representative sequence] = [sequences_that_belong_to_the_cluster]
 
-and prints it out to standard output.
+If the script is called in a standalone manner, it outputs a table containing
+the relative frequencies of each cluster (in descending order).
 """
 import argparse
 import re
-
-import natural_sort
 
 def parse_clstr(clstr_file):
     # start parsing
@@ -40,17 +39,24 @@ def parse_clstr(clstr_file):
         cluster[representative_seq] = seqs_in_cluster
     
     return cluster
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="""
+    Contains a function to parse cd-hit-est's .clstr files, and outputs a table
+    containing the relative frequencies of each cluster (in descending order).""")
     
-parser = argparse.ArgumentParser(description="""
-Parses cd-hit-est's .clstr files""")
+    parser.add_argument('clstr_file', metavar='clstr_filename',
+                        type=argparse.FileType('r'),
+                        help="name of clstr file.")
 
-parser.add_argument('clstr_file', metavar="clstr_filename",
-                    type=argparse.FileType('r'), help="clstr filename.")
-
-args = parser.parse_args()
-
-clusters = parse_clstr(args.clstr_file)
-
-for c in natural_sort.natural_sort(clusters):
-    d = natural_sort.natural_sort(clusters[c])
-    print (c, ','.join(d), sep='\t')
+    args = parser.parse_args()
+    
+    clusters = parse_clstr(args.clstr_file)
+    
+    # get cluster values, so that we can find the total number of clusters
+    cluster_values = [len(clusters[x]) for x in clusters]
+    total = sum(cluster_values)
+    
+    # print results out
+    for c in sorted(clusters, key=lambda x: len(clusters[x])):
+        print (c, len(clusters[c]), round(len(clusters[c]) / total, 4), sep='\t')
