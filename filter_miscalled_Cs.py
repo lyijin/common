@@ -8,6 +8,7 @@ removes methylated positions that potentially arise by chance.
 
 A super-conservative estimate of 1% miscall rate is assumed (might be as low
 as 0.1%, evidenced by the CHG and CHH call rate in S. pistillata libraries).
+This miscall rate can be tweaked, by changing --miscall.
 
 The script ONLY considers positions that have at least one methylated position.
 There's no way to "miscall" a C as methylated... if it's not methylated. As
@@ -31,46 +32,49 @@ parser = argparse.ArgumentParser(description="""
 Script to process the .cov files produced by bismark_methylation_extractor, and
 removes methylated positions that potentially arise by chance.""")
 
-parser.add_argument('bismark_cov', metavar="cov_filename",
-                    type=argparse.FileType('r'), nargs='?',
-                    default=sys.stdin, help="Bismark .cov filename.")
-parser.add_argument('-v', action='store_true',
-                    help="verbose mode, prints progress to stderr.")
+parser.add_argument('bismark_cov', metavar='cov_filename',
+                    type=argparse.FileType('r'),
+                    help='Bismark .cov filename.')
+parser.add_argument('--miscall', metavar='miscall_rate',
+                    type=float, default=0.01,
+                    help='Control assumed miscall rate (default: 0.01).')
+parser.add_argument('-v', '--verbose', action='store_true',
+                    help='verbose mode, prints progress to stderr.')
 args = parser.parse_args()
 
-# calculate binomial P values first
+# calculate binomial p values first
 counter_rows = 0
 p_values = {}
-with args.bismark_cov as tsv_file:
-    tsv_reader = csv.reader(tsv_file, delimiter='\t')
-    for row in tsv_reader:
-        if not row: continue 
 
-        if args.v:
-            counter_rows += 1
-            if counter_rows % 100000 == 0:
-                print ('{} rows processed...'.format(counter_rows), file=sys.stderr)
-            
-        # column 4: sum(methylated reads)
-        # column 5: sum(non-methylated reads)
-        meth = int(row[4])
-        non_meth = int(row[5])
+tsv_reader = csv.reader(args.bismark_cov, delimiter='\t')
+for row in tsv_reader:
+    if not row: continue 
+
+    if args.verbose:
+        counter_rows += 1
+        if counter_rows % 100000 == 0:
+            print ('{} rows processed...'.format(counter_rows), file=sys.stderr)
         
-        # ignore lines with meth == 0
-        if meth > 0:
-            # scipy.stats.binom.sf calculates P(X > n) by default; the "-1"
-            # is added to achieve P(X >= n).
-            binom_p = scipy.stats.binom.sf(meth-1, meth + non_meth, 0.01)
-            p_values[str(row)] = binom_p
+    # column 4: sum(methylated reads)
+    # column 5: sum(non-methylated reads)
+    meth = int(row[4])
+    non_meth = int(row[5])
+    
+    # ignore lines with meth == 0
+    if meth > 0:
+        # scipy.stats.binom.sf calculates P(X > n) by default; the "-1"
+        # is added to achieve P(X >= n).
+        binom_p = scipy.stats.binom.sf(meth-1, meth + non_meth, args.miscall)
+        p_values[str(row)] = binom_p
 
 # run B-H correction
-if args.v:
+if args.verbose:
     print ('correcting p values...', file=sys.stderr)
 
 p_values = correct_p_values.correct_p_values(p_values)
 
 # then print valid rows out
-if args.v:
+if args.verbose:
     print ('printing output and exiting.', file=sys.stderr)
     
 for p in natural_sort.natural_sort(p_values):
