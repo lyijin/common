@@ -37,8 +37,8 @@ parser.add_argument('genome_gff3', metavar='gff3_file',
                     type=argparse.FileType('r'),
                     help='genome GFF3 annotation.')
 parser.add_argument('bismark_cov', metavar="cov_filename",
-                    type=argparse.FileType('r'), nargs='?',
-                    default=sys.stdin, help="Bismark .cov filename.")
+                    type=argparse.FileType('r'),
+                    help="Bismark .cov filename.")
 parser.add_argument('-v', '--verbose', action='store_true',
                     help='prints diagnostic stuff to stderr.')
 args = parser.parse_args()
@@ -148,7 +148,7 @@ def translate_exon_info(ei_integer, gene_id):
     """
     # in rare cases, the longest transcript in a gene is shorter than the 
     # gene itself. Thus, there's a possibility that
-    #     gene_info != AND exon_info == 0 !!
+    #     gene_info != 0 AND exon_info == 0 !!
     if not ei_integer: return 'no_info'
     
     ei_integer = abs(int(ei_integer))   # NumPy ints aren't... really ints.    
@@ -168,9 +168,11 @@ if args.verbose:
 
 # read coordinates of genes and exons from .gff3 file.
 scaffold_gff3 = parse_gff3.parse_gff3(args.genome_gff3, 'exon')
+
 # as genes might contain overlapping isoforms, the longest isoform is chosen,
 # if multiples exist.
 scaffold_gff3 = parse_gff3.pick_longest_mRNA(scaffold_gff3)
+
 # make sure features in all mRNAs are sorted properly (for exon numbering).
 scaffold_gff3 = parse_gff3.sort_features(scaffold_gff3)
 
@@ -200,8 +202,16 @@ exon_info = {}
 exon_count = {}
 
 for s in natural_sort.natural_sort(scaffold_gff3):
+    # previous iterations of this script had exon_info as int8, which is
+    # [-128, 127]. this meant that annotations beyond +127 (exon 64) or
+    # -128 (intron 64) had the wrong exon/intron number (the type is still
+    # mostly correct).
+    #
+    # this current iteration will break when there are > 1 billion genes or
+    # > 16k exons... which are (hopefully) impossible to achieve.
     gene_info[s] = np.zeros(sequence_lengths[s], np.int32)
-    exon_info[s] = np.zeros(sequence_lengths[s], np.int8)
+    exon_info[s] = np.zeros(sequence_lengths[s], np.int16)
+    
     for gene_id in natural_sort.natural_sort(scaffold_gff3[s]):
         # gene detail annotation
         gene_coords = scaffold_gff3[s][gene_id].coords
@@ -213,7 +223,7 @@ for s in natural_sort.natural_sort(scaffold_gff3):
         gene_info[s] = assign_value_to_numpy_array(gene_info[s], gene_coords, 
                                                    gene_counter)
         gene_names[gene_counter] = gene_id
-
+        
         # exon detail annotation
         #        
         # sole_mRNA is a mRNA object, with the assumption that *.mRNAs
@@ -311,7 +321,7 @@ for row in tsv_reader:
             extra_info += calc_displacement(gene_info[scaf], [start, end])
         elif gene_info[scaf][start] < 0:
             extra_info += calc_displacement(gene_info[scaf], [end, start])
-    
+        
         # add exon info. ignore intergenic stuff - no exon/intron there.
         extra_info.append(translate_exon_info(exon_info[scaf][start], gene_id))
         if exon_info[scaf][start] > 0:
