@@ -10,6 +10,7 @@ but that script takes much longer as it covers more bases.
 import argparse
 import collections
 import csv
+import re
 import time
 
 import numpy as np
@@ -31,8 +32,8 @@ parser.add_argument('genome_gff3', metavar='gff3_file',
 parser.add_argument('bismark_cov', metavar="cov_filename",
                     type=argparse.FileType('r'),
                     help="Bismark .cov filename.")
-parser.add_argument('-v', '--verbose', action='store_true',
-                    help='prints diagnostic stuff to stderr.')
+parser.add_argument('-u', '--universe', action='store_true',
+                    help='also print intergenic/exonic/intronic #s for genome.')
 args = parser.parse_args()
 
 def is_numpy_array_filled(np_array, coords):
@@ -48,11 +49,8 @@ def assign_value_to_numpy_array(np_array, coords, assigned_value):
     return np_array
 
 # read sequences
-sequence_lengths = parse_fasta.get_all_sequences(args.genome_fasta, 
-        'fasta', lengths_only=True)
-if args.verbose:
-    print ('[{}] Lengths for {} sequences parsed.'.format(
-           time.asctime(), len(sequence_lengths)), file=sys.stderr)
+genome_seqs = parse_fasta.get_all_sequences(args.genome_fasta, 'fasta')
+sequence_lengths = {x: len(y) for x, y in genome_seqs.items()}
 
 # read coordinates of genes and exons from .gff3 file.
 scaffold_gff3 = parse_gff3.parse_gff3(args.genome_gff3, 'exon')
@@ -104,9 +102,23 @@ for s in natural_sort.natural_sort(scaffold_gff3):
         for i in intron_coords:
             exon_info[s] = assign_value_to_numpy_array(exon_info[s], i, 2)
 
+# if --universe is true, go through genome and pick out where CpG positions are,
+# and tally their genomic context
+genome_cpg_info = []
+if args.universe:
+    for scaf in genome_seqs:
+        # cpg_locs stores the location of all CpGs in the genome
+        # e.g. [(0, 2), (7, 9), (10, 12), (22, 24), (24, 26)]
+        cpg_locs = [x.span() for x in re.finditer('CG', genome_seqs[scaf])]
+        for cl in cpg_locs:
+            for pos in range(*cl):
+                if scaf not in exon_info:
+                    genome_cpg_info.append(0)
+                else:
+                    genome_cpg_info.append(exon_info[scaf][pos])
+
 # create empty list to store exon_info of methylated positions
 pos_of_interest_info = []
-counter = 0
 
 # read per-position # of methylated and unmethylated bases
 tsv_reader = csv.reader(args.bismark_cov, delimiter='\t')
@@ -123,7 +135,12 @@ for row in tsv_reader:
         pos_of_interest_info.append(exon_info[scaf][pos])
 
 # print output
-pos_of_interest_info = collections.Counter(pos_of_interest_info)
 print ('total', 'intergenic', 'exonic', 'intronic', sep='\t')
+if args.universe:
+    genome_cpg_info = collections.Counter(genome_cpg_info)
+    print (sum(genome_cpg_info.values()),
+           *[genome_cpg_info[x] for x in range(3)], sep='\t')
+
+pos_of_interest_info = collections.Counter(pos_of_interest_info)
 print (sum(pos_of_interest_info.values()),
        *[pos_of_interest_info[x] for x in range(3)], sep='\t')
