@@ -7,36 +7,41 @@ Script to merge similar tsvs together, by checking common keys in the first
 column (by default, can be toggled with --key).
 
 Headers are assumed to be NOT PRESENT by default!
+
+Design considerations: it's possible for keys and retained columns to be
+interspersed, i.e. key1, col1, key2, col2, col3, ... but for output
+purposes, keys always appear first, then columns next, i.e. key1, key2, 
+col1_file1, col2_file1, col3_file1, col1_file2, col2_file2, col3_file2, ...
 """
 import argparse
-import csv
-import re
 import sys
 
-import natural_sort
+import pandas as pd
 
 parser = argparse.ArgumentParser(description="""
 Script to merge similar tsvs together, by checking common keys in the first
-column.
-""")
+column.""")
 
-parser.add_argument('tsv_files', metavar="tsv_filenames",
+parser.add_argument('tsv_files', metavar='tsv_filenames',
                     type=argparse.FileType('r'), nargs='+',
-                    help="tab-separated filenames.")
+                    help='tab-separated filenames.')
 parser.add_argument('--header', action='store_true',
-                    help="tsv files have a header line (default: no headers!).")
-parser.add_argument('--key', '-k', metavar="key_columns",
+                    help='tsv files have a header line (default: no headers!).')
+parser.add_argument('--key', '-k', metavar='key_columns',
                     type=int, nargs='+', default=[0],
-                    help="(0-based) columns as keys (default: 0).")
-parser.add_argument('--col', '-c', metavar="retained_columns",
+                    help='(0-based) columns as keys (default: 0).')
+parser.add_argument('--col', '-c', metavar='retained_columns',
                     type=int, nargs='+',
-                    help="(0-based) columns as values (default: all except -k)")
+                    help='(0-based) columns as values (default: all except -k).')
+parser.add_argument('--how', default='left',
+                    help='specify how to join tsvs: left (default)/union/inner.')
 parser.add_argument('-v', action='store_true',
-                    help="verbose mode, prints extra details to stderr.")
+                    help='verbose mode, prints extra details to stderr.')
 args = parser.parse_args()
 
-giant_dict = {}
-max_cols = len(args.col) if args.col else 0
+# sanity checks
+assert args.how in ['left', 'union', 'inner'], \
+    "args.how has to be 'left'/'union'/'inner'."
 
 if args.v:
     print ('Files used: {}'.format(', '.join([x.name for x in args.tsv_files])),
@@ -48,53 +53,53 @@ if args.v:
         print ('Headers are NOT PRESENT.', file=sys.stderr)
 
 # read data
+giant_dict = {}
 for tsv_file in args.tsv_files:
-    tsv_reader = csv.reader(tsv_file, delimiter='\t')
+    giant_dict[tsv_file.name] = \
+        pd.read_table(tsv_file, header=0 if args.header else None)
     
-    # skip header row if args.header
-    if args.header:
-        header = next(tsv_reader)
+    # manipulate dataframe if args.col is not None, or when args.key isn't [0]
+    if args.col:
+        # in df, keys must appear before columns
+        giant_dict[tsv_file.name] = \
+            giant_dict[tsv_file.name].iloc[:, args.key + args.col]
+    elif args.key != [0] and not args.col:
+        num_cols = len(giant_dict[tsv_file.name].columns)
+        non_keys = sorted(list(set(range(num_cols)) - set(args.key)))
+        giant_dict[tsv_file.name] = \
+            giant_dict[tsv_file.name].iloc[:, args.key + non_keys]
     
     if args.v:
-        print ('\rReading file #{}'.format(args.tsv_files.index(tsv_file) + 1),
-            end='', file=sys.stderr)
-    
-    for row in tsv_reader:
-        # skip empty rows
-        if not row: continue
-        
-        row_key = '\t'.join([row[k] for k in args.key])
-        
-        if args.col:
-            row_val = '\t'.join([row[c] for c in args.col])
-        else:
-            row_val = '\t'.join([row[c] for c in range(len(row))
-                                 if c not in args.key])
-            if len(row) > max_cols:
-                max_cols = len(row_val.split('\t'))
-        
-        if row_key not in giant_dict:
-            giant_dict[row_key] = {}
+        print (f'\rReading file #{args.tsv_files.index(tsv_file) + 1}',
+               end='', file=sys.stderr)
 
-        giant_dict[row_key][tsv_file.name] = row_val
+# merge data
+combined_data = giant_dict[args.tsv_files[0].name]
+
+# remember, keys are always on the leftmost columns
+key_cols = range(len(args.key))
+for n in range(1, len(args.tsv_files)):
+    left = combined_data
+    right = giant_dict[args.tsv_files[n].name]
+    
+    combined_data = pd.merge(left, right,
+                             how=args.how,
+                             left_on=list(left.columns[key_cols]),
+                             right_on=list(right.columns[key_cols]))
 
 if args.v:
-    print ('\nUnion of all files produces {} rows.'.format(len(giant_dict)),
-        file=sys.stderr)
+    print (f'\nUnion of all files produces {len(combined_data)} rows.',
+           file=sys.stderr)
 
-# write data
-# header lines
-print ('\t'.join([''] * len(args.key) +\
-                 [x.name + '\t' * (max_cols - 1) for x in args.tsv_files]))
-if args.header:
-    header_key = '\t'.join([header[k] for k in args.key])
-    if args.col:
-        header_val = '\t'.join([header[c] for c in args.col])
-    else:
-        header_val = '\t'.join([header[c] for c in range(len(header))
-                                if c not in args.key])
-    print ('\t'.join([header_key] + [header_val] * len(args.tsv_files)))
-    
-for g in natural_sort.natural_sort(giant_dict):
-    print ('\t'.join([g] + [giant_dict[g][x.name] if x.name in giant_dict[g]
-                            else '\t' * (max_cols - 1) for x in args.tsv_files]))
+# print combined data out
+num_keys = len(args.key)
+
+# header line contain filenames that were merged
+header = '\t' * num_keys
+for tsv_file in args.tsv_files:
+    header += tsv_file.name
+    header += '\t' * (len(giant_dict[tsv_file.name].columns) - num_keys)
+print (header)
+
+# print content
+print (combined_data.to_csv(sep='\t', header=args.header, index=False), end='')
