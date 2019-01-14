@@ -56,7 +56,7 @@ if args.v:
 giant_dict = {}
 for tsv_file in args.tsv_files:
     giant_dict[tsv_file.name] = \
-        pd.read_table(tsv_file, header=0 if args.header else None)
+        pd.read_table(tsv_file, header=0 if args.header else None, dtype=str)
     
     # manipulate dataframe if args.col is not None, or when args.key isn't [0]
     if args.col:
