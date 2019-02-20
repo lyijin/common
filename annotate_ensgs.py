@@ -38,12 +38,26 @@ for row in tsv_reader:
 
 def get_annot(ensg, warnings=False):
     if ensg in ensgs_dict:
-        return ensgs_dict[ensg]['symbol'], ensgs_dict[ensg]['name']
+        return f"{ensgs_dict[ensg]['symbol']}\t{ensgs_dict[ensg]['name']}"
     else:
         if warnings:
             print (f'WARNING: {ensg} does not have a gene symbol/name assigned.',
                    file=sys.stderr)
-        return '', ''
+        return '\t'
+
+def get_all_gene_symbols(ensgs_list):
+    output = []
+    for ensg in ensgs_list:
+        output.append(get_annot(ensg).split('\t')[0])
+    
+    return output
+
+def get_all_gene_annots(ensgs_list):
+    output = []
+    for ensg in ensgs_list:
+        output.append(get_annot(ensg).split('\t')[1])
+    
+    return output
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="""
@@ -63,8 +77,8 @@ if __name__ == '__main__':
     with args.text_file as f:
         for line in f:
             try:
-                ensg = re.search('ENSG\d+', line).group(0)
-                print (line.strip(), *get_annot(ensg, warnings=args.verbose),
+                ensg = re.search(r'ENSG\d+', line).group(0)
+                print (line.strip(), get_annot(ensg, warnings=args.verbose),
                        sep='\t')
             
             except AttributeError:

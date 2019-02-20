@@ -99,7 +99,9 @@ header = '\t' * num_keys
 for tsv_file in args.tsv_files:
     header += tsv_file.name
     header += '\t' * (len(giant_dict[tsv_file.name].columns) - num_keys)
-print (header)
+
+# remove the final tab character before printing
+print (header[:-1])
 
 # print content
 print (combined_data.to_csv(sep='\t', header=args.header, index=False), end='')
