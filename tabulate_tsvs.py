@@ -52,11 +52,20 @@ if args.v:
     else:
         print ('Headers are NOT PRESENT.', file=sys.stderr)
 
+# if -c are used, define maxwidth so that the read_csv function below
+# only reads maxwidth columns
+maxwidth = 0
+if args.col:
+    maxwidth = max(args.key + args.col)
+
 # read data
 giant_dict = {}
 for tsv_file in args.tsv_files:
     giant_dict[tsv_file.name] = \
-        pd.read_table(tsv_file, header=0 if args.header else None, dtype=str)
+        pd.read_csv(tsv_file, sep='\t',
+                    header=0 if args.header else None, 
+                    usecols=None if not maxwidth else range(0, maxwidth + 1),
+                    dtype=str)
     
     # manipulate dataframe if args.col is not None, or when args.key isn't [0]
     if args.col:
