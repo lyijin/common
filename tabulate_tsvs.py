@@ -34,14 +34,14 @@ parser.add_argument('--col', '-c', metavar='retained_columns',
                     type=int, nargs='+',
                     help='(0-based) columns as values (default: all except -k).')
 parser.add_argument('--how', default='left',
-                    help='specify how to join tsvs: left (default)/union/inner.')
+                    help='specify how to join tsvs: left (default)/right/outer/inner.')
 parser.add_argument('-v', action='store_true',
                     help='verbose mode, prints extra details to stderr.')
 args = parser.parse_args()
 
 # sanity checks
-assert args.how in ['left', 'union', 'inner'], \
-    "args.how has to be 'left'/'union'/'inner'."
+assert args.how in ['left', 'right', 'outer', 'inner'], \
+    "args.how has to be one of 'left', 'right', 'outer', or 'inner'."
 
 if args.v:
     print ('Files used: {}'.format(', '.join([x.name for x in args.tsv_files])),
