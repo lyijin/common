@@ -34,7 +34,9 @@ parser.add_argument('--col', '-c', metavar='retained_columns',
                     type=int, nargs='+',
                     help='(0-based) columns as values (default: all except -k).')
 parser.add_argument('--how', default='left',
-                    help='specify how to join tsvs: left (default)/right/outer/inner.')
+                    help='specify how to join tsvs: left/right/outer/inner (default: left).')
+parser.add_argument('--fillna',
+                    help='replace NaN values with specified string. (default: blank)')
 parser.add_argument('-v', action='store_true',
                     help='verbose mode, prints extra details to stderr.')
 args = parser.parse_args()
@@ -95,6 +97,9 @@ for n in range(1, len(args.tsv_files)):
                              how=args.how,
                              left_on=list(left.columns[key_cols]),
                              right_on=list(right.columns[key_cols]))
+
+if args.fillna:
+    combined_data = combined_data.fillna(args.fillna)    
 
 if args.v:
     print (f'\nUnion of all files produces {len(combined_data)} rows.',
