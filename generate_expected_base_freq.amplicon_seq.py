@@ -51,7 +51,19 @@ with args.amplicon_seqs as f:
 amplicon_seqs = sorted(amplicon_seqs, key=len)
 
 # generate and print output
-print ('\t' * len(amplicon_seqs), 'A\tC\tG\tT')
-for n in range(len(amplicon_seqs[-1])):
-    pos_n_bases = [x[n] if n < len(x) else '-' for x in amplicon_seqs]
-    print (*pos_n_bases, *calc_base_proportions(pos_n_bases), sep='\t')
+if not args.transpose:
+    print ('\t' * len(amplicon_seqs), 'A\tC\tG\tT')
+    for n in range(len(amplicon_seqs[-1])):
+        pos_n_bases = [x[n] if n < len(x) else '-' for x in amplicon_seqs]
+        print (*pos_n_bases, *calc_base_proportions(pos_n_bases), sep='\t')
+else:
+    for a in amplicon_seqs:
+        print ('', *a, sep='\t')
+    
+    for b in 'ACGT':
+        print (b, end='')
+        for n in range(len(amplicon_seqs[-1])):
+            pos_n_bases = [x[n] if n < len(x) else '-' for x in amplicon_seqs]
+            print ('\t' + calc_base_proportions(pos_n_bases)['ACGT'.index(b)],
+                   end='')
+        print ('')
