@@ -12,8 +12,10 @@ to produce dict[sequence] = annotation). Can probably be altered
 in the future to output a list if annotations are not required.
 
 Supports opening gzipped files by setting the gzip=True flag.
+
+From Python 3.7 onwards, dicts are ordered by insertion order, hence obviating
+the need to use OrderedDict from the collections library.
 """
-from collections import OrderedDict
 from itertools import tee
 import gzip
 
@@ -60,15 +62,19 @@ def get_single_sequence(sequence_file, file_format, gzip_compressed=False):
 
     yield annot, seq
 
-    
 def get_all_sequences(sequence_file, file_format, gzip_compressed=False,
                       sequences_only=False, lengths_only=False, 
                       include_annots=[], exclude_annots=[], 
                       contain_annots=[]):
+    """
+    Handy one-liner to iterate over all sequences.
+    """
     assert file_format in ['fasta', 'fastq'], "Unexpected file format!"
     
     def check_inclusion(annot):
-        """checks whether annot should be outputted or not"""
+        """
+        Checks whether annot should be included, or not.
+        """
         if not include_annots and not exclude_annots and not contain_annots:
             return True
         
@@ -95,15 +101,15 @@ def get_all_sequences(sequence_file, file_format, gzip_compressed=False,
     if lengths_only:
         # instead of returning sequences, just returns the lengths of the
         # sequences
-        all_lens = OrderedDict([(x, len(y)) for x, y in 
-                                 get_single_sequence(sequence_file, file_format, gzip_compressed) 
-                                 if check_inclusion(x)])
+        all_lens = {x: len(y) for x, y in 
+                    get_single_sequence(sequence_file, file_format, gzip_compressed) 
+                    if check_inclusion(x)}
                             
         return all_lens
     
     # unfortunately this has problems when there are duplicate annots
-    all_seqs = OrderedDict([x for x in \
-                            get_single_sequence(sequence_file, file_format, gzip_compressed)
-                            if check_inclusion(x)])
+    all_seqs = {x:y for x,y in
+                get_single_sequence(sequence_file, file_format, gzip_compressed)
+                if check_inclusion(x)}
     
     return all_seqs
