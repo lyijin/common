@@ -11,16 +11,19 @@ Headers are assumed to be NOT PRESENT by default!
 Design considerations: it's possible for keys and retained columns to be
 interspersed, i.e. key1, col1, key2, col2, col3, ... but for output
 purposes, keys always appear first, then columns next, i.e. key1, key2, 
-col1_file1, col2_file1, col3_file1, col1_file2, col2_file2, col3_file2, ...
+col1_file1, col2_file1, col3_file1, col1_file2, col2_file2, col3_file2, etc.
+
+Autodetects whether input files are gzip-compressed from `.gz` suffix.
 """
 import argparse
+import gzip
 import sys
 
 import pandas as pd
 
 parser = argparse.ArgumentParser(description="""
 Script to merge similar tsvs together, by checking common keys in the first
-column.""")
+column (by default, can be toggled with --key).""")
 
 parser.add_argument('tsv_files', metavar='tsv_filenames',
                     type=argparse.FileType('r'), nargs='+',
@@ -63,11 +66,11 @@ if args.col:
 # read data
 giant_dict = {}
 for tsv_file in args.tsv_files:
-    giant_dict[tsv_file.name] = \
-        pd.read_csv(tsv_file, sep='\t',
-                    header=0 if args.header else None, 
-                    usecols=None if not maxwidth else range(0, maxwidth + 1),
-                    dtype=str)
+    giant_dict[tsv_file.name] = pd.read_table(
+        tsv_file if tsv_file.name[-3:] != '.gz' else gzip.open(tsv_file.name, 'rt'),
+        header=0 if args.header else None, 
+        usecols=None if not maxwidth else range(0, maxwidth + 1),
+        dtype=str)
     
     # manipulate dataframe if args.col is not None, or when args.key isn't [0]
     if args.col:
