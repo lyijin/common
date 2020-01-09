@@ -2,25 +2,21 @@
 
 # Jellyfish all-in-one script, simplifiying the entire Jellyfish pipeline:
 # 1. jellyfish count
-# 2. jellyfish merge
-# 3. jellyfish histo
-# 4. jellyfish stats
+# 2. jellyfish stats
+# 3. jellyfish dump
 #
-# Two arguments needed: first one is FASTA/FASTQ file; second one is k-mer size.
+# Two arguments needed: first one is k-mer size; second one is FASTA/FASTQ file.
 # (note that -C collapses any k-mer with its complementary, use this if the 
 # library is non-directional)
+#
+# NOTE: jellyfish merge not needed in Jellyfish v2 - merging is done whenever
+# needed by jellyfish count.
 
-echo Counting $1...
-jellyfish count -m $2 -s 1G -t 15 -o ${1}.k${2} $1
+set -e		# script exits upon a command producing nonzero exit value
 
-if [ -f ${1}.k${2}_1 ];
-then
-    echo Merging variants of ${1}.k{2}...
-    jellyfish merge ${1}.k${2}_* -o temp && rm -f ${1}.k${2}_* && mv temp ${1}.k${2}
-else
-    echo Skipping jellyfish merge, as ${1}.k${2} is not in multiple pieces.
-fi
+echo Counting gzip-compressed $2...
+zcat ${2} | jellyfish count -C -m $1 -s 1G -t 10 -o ${2}.k${1} /dev/fd/0
 
-echo Creating histo and stats for ${1}.k${2}...
-jellyfish stats ${1}.k${2} > ${1}.k${2}.stats
-jellyfish histo -h 10000 -f -t 8 ${1}.k${2} > ${1}.k${2}.histo
+echo Creating dump and stats for ${2}.k${1}...
+jellyfish stats ${2}.k${1} > ${2}.k${1}.stats.txt
+jellyfish dump -c -t ${2}.k${1} > ${2}.k${1}.dump.tsv
