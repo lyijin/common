@@ -18,6 +18,18 @@ plut_prots	prot	Porites lutea gene models (ReFuGe 2020)	/home/liewy/kaust/refuge
 pspe_genome	nucl	Pachyseris speciosa genome (ReFuGe 2020)	/home/liewy/kaust/refuge2020/pspe_final_0.1.fasta.gz
 pdae_genome	nucl	Platygyra daedalea genome (Wang, unpubl.)	
 pdae_prots	prot	Platygyra daedalea gene models (Wang, unpubl.)	
+cc7_genome	nucl	Aiptasia CC7 genome (Nagarajan, unpubl.)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/aiptasiav2/download/CC7v2_R6_locked.scaffolds.ptmasked.fa.gz
+cc7_prots	prot	Aiptasia CC7 genome (Nagarajan, unpubl.)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/aiptasiav2/download/CC7v2_proteins.fa.gz
+haw_genome	nucl	Aiptasia HAW genome (Nagarajan, unpubl.)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/aiptasiav2/download/HAWv1_R3_locked.scaffolds.ptmasked.fa.gz
+haw_prots	prot	Aiptasia HAW genome (Nagarajan, unpubl.)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/aiptasiav2/download/HAWv1_proteins.fa.gz
+red_genome	nucl	Aiptasia RED genome (Nagarajan, unpubl.)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/aiptasiav2/download/REDv1_R3_locked.scaffolds.ptmasked.fa.gz
+red_prots	prot	Aiptasia RED genome (Nagarajan, unpubl.)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/aiptasiav2/download/REDv1_proteins.fa.gz
+cc7_isoseq	nucl	Aiptasia CC7 full-length transcripts (Nagarajan, unpubl.)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/aiptasiav2/download/CC7v2_FLTs.isoseq.fa.gz
+haw_isoseq	nucl	Aiptasia HAW full-length transcripts (Nagarajan, unpubl.)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/aiptasiav2/download/HAWv1_FLTs.isoseq.fa.gz
+red_isoseq	nucl	Aiptasia RED full-length transcripts (Nagarajan, unpubl.)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/aiptasiav2/download/REDv1_FLTs.isoseq.fa.gz
+pver_genome	nucl	Pocillopora verrucosa genome (Buitrago-Lopez, 2020)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/pver/download/Pver_genome_assembly_v1.0.fasta.gz
+pver_prots	prot	Pocillopora verrucosa gene models (Buitrago-Lopez, 2020)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/pver/download/Pver_proteins_names_v1.0.faa.gz
+pver_tx_models	nucl	Pocillopora verrucosa gene models (Buitrago-Lopez, 2020)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/pver/download/Pver_genes_names_v1.0.fna.gz
 
 # publically available data but not hosted on reefgenomics.org
 adig_genome	nucl	Acropora digitifera genome (Shinzato, 2011)	
