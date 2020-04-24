@@ -4,19 +4,27 @@
 #
 # USAGE: get_sra_from_ebi.sh <acc_no1> <acc_no2> ...
 #
-# Depends on Aspera SCP. Script assumes sequencing files are from a paired-end
-# run, then downloads <acc_no>_1.fastq.gz and <acc_no>_2.fastq.gz from EBI.
+# Relies on plain ol' `wget`. Gave up on getting `ascp` to work reliably.
 #
-# ascp flags:
-#   -pvT    Preserve timestamps, verbose, no encryption
-#   -k 1    Resume downloads if the current and original attributes match
+# `wget` flags:
+#   -c    Continue downloads
+#   -nv   "no verbose", which is "quiet" + error messages
+#   -r    Recursive
+#   -l 1  One-level deep
+#   -np   Do not ascend to parent directories
+#   -nd   Do not create directories
 for acc_no in "$@"
 do
-    echo [`date`] Getting R1 for ${acc_no}...
-    ~/.aspera/connect/bin/ascp -pvT -i ~/.aspera/connect/etc/asperaweb_id_dsa.openssh -P 33001 -O 33001 -k 1 -l 50M --mode recv --overwrite older era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/${acc_no:0:6}/00${acc_no: -1}/${acc_no}/${acc_no}_1.fastq.gz .
-    
-    echo [`date`] Getting R2 for ${acc_no}...
-    ~/.aspera/connect/bin/ascp -pvT -i ~/.aspera/connect/etc/asperaweb_id_dsa.openssh -P 33001 -O 33001 -k 1 -l 50M --mode recv --overwrite older era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/${acc_no:0:6}/00${acc_no: -1}/${acc_no}/${acc_no}_2.fastq.gz .
+    if [ ${#acc_no} -gt 10 ]; then
+        echo [`date`] Downloading ${acc_no}...
+        wget -c -nv -r -l 1 -np -nd "ftp://ftp.ebi.ac.uk/ena/vol1/fastq/${acc_no:0:6}/0${acc_no: -2}/${acc_no}/"
+    elif [ ${#acc_no} -eq 10 ]; then
+        echo [`date`] Downloading ${acc_no}...
+        wget -c -nv -r -l 1 -np -nd "ftp://ftp.ebi.ac.uk/ena/vol1/fastq/${acc_no:0:6}/00${acc_no: -1}/${acc_no}/"
+    else
+        echo [`date`] Downloading ${acc_no}...
+        wget -c -nv -r -l 1 -np -nd "ftp://ftp.ebi.ac.uk/ena/vol1/fastq/${acc_no:0:6}/${acc_no}/"
+    fi
     
     echo [`date`] Completed ${acc_no}.
     echo

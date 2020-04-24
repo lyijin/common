@@ -5,13 +5,14 @@
 
 Contains a collection of functions that make it much easier to use Primer3,
 which is natively written in C.
+
+PATHs are based on Debian `apt`-installed primer3.
 """
 import subprocess
 import tempfile
 
-PRIMER3_PATH = '/home/liewy/tools/primer3-2.3.6/src/'
-PRIMER3_CORE = PRIMER3_PATH + 'primer3_core'
-PRIMER3_CONFIG = PRIMER3_PATH + 'primer3_config/'
+PRIMER3_CORE = '/usr/bin/primer3_core'
+PRIMER3_CONFIG = '/etc/primer3_config/'
 
 def test_primer3_exists():
     """
