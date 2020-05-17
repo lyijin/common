@@ -51,6 +51,8 @@ The output is in the form of:
 #        if endpos = 2 and startpos = 3: '-' strand    }  the same base
 
 import csv
+import gzip
+from pathlib import Path, PurePath
 import re
 
 class Gene:
@@ -176,7 +178,15 @@ def parse_gff3(gff_file, select_feature='all'):
     """
     gff_details = {}
     
-    tsv_reader = csv.reader(gff_file, delimiter='\t')
+    # enforce the use of Path objects
+    if not isinstance(gff_file, PurePath):
+        gff_file = Path(gff_file.name)
+    
+    if gff_file.suffix == '.gz':
+        tsv_reader = csv.reader(gzip.open(gff_file, 'rt'), delimiter='\t')
+    else:
+        tsv_reader = csv.reader(open(gff_file), delimiter='\t')
+    
     for row in tsv_reader:
         # ignore blank lines and comments (lines starting with '#')
         if not row: continue

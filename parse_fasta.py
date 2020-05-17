@@ -18,6 +18,7 @@ the need to use OrderedDict from the collections library.
 """
 from itertools import tee
 import gzip
+from pathlib import Path, PurePath
 
 def pairwise(iterable):
     """s -> (s0,s1), (s1,s2), (s2, s3), ..."""
@@ -25,7 +26,7 @@ def pairwise(iterable):
     next(b, None)
     return zip(a, b)
 
-def get_single_sequence(sequence_file, file_format, gzip_compressed=False):
+def get_single_sequence(sequence_file, file_format):
     """
     A generator that can handle:
     - multi-line FASTA
@@ -41,8 +42,14 @@ def get_single_sequence(sequence_file, file_format, gzip_compressed=False):
     elif file_format == 'fastq':
         annot_symbol = '@'
     
-    if gzip_compressed:
-        sequence_file = gzip.open(sequence_file.name, 'rt')
+    # enforce the use of Path objects
+    if not isinstance(sequence_file, PurePath):
+        sequence_file = Path(sequence_file.name)
+    
+    if sequence_file.suffix == '.gz':
+        sequence_file = gzip.open(sequence_file, 'rt')
+    else:
+        sequence_file = open(sequence_file)
     
     annot = ''
     for line, next_line in pairwise(sequence_file):
@@ -62,7 +69,7 @@ def get_single_sequence(sequence_file, file_format, gzip_compressed=False):
 
     yield annot, seq
 
-def get_all_sequences(sequence_file, file_format, gzip_compressed=False,
+def get_all_sequences(sequence_file, file_format,
                       sequences_only=False, lengths_only=False, 
                       include_annots=[], exclude_annots=[], 
                       contain_annots=[]):
@@ -95,21 +102,21 @@ def get_all_sequences(sequence_file, file_format, gzip_compressed=False,
     if sequences_only:
         # returns a list of sequences only, thus dodging problem with duplicate
         # annotations
-        return [y for x, y in get_single_sequence(sequence_file, file_format, gzip_compressed)
+        return [y for x, y in get_single_sequence(sequence_file, file_format)
                 if check_inclusion(x)]
     
     if lengths_only:
         # instead of returning sequences, just returns the lengths of the
         # sequences
         all_lens = {x: len(y) for x, y in 
-                    get_single_sequence(sequence_file, file_format, gzip_compressed) 
+                    get_single_sequence(sequence_file, file_format) 
                     if check_inclusion(x)}
                             
         return all_lens
     
     # unfortunately this has problems when there are duplicate annots
     all_seqs = {x:y for x,y in
-                get_single_sequence(sequence_file, file_format, gzip_compressed)
+                get_single_sequence(sequence_file, file_format)
                 if check_inclusion(x)}
     
     return all_seqs
