@@ -8,6 +8,7 @@ which is natively written in C.
 
 PATHs are based on Debian `apt`-installed primer3.
 """
+import pprint
 import subprocess
 import tempfile
 
@@ -111,7 +112,14 @@ def check_paired_primers(primer_sequences):
     return parsed_data
     
 if __name__ == '__main__':
-    # print (test_primer3_exists())
+    print ('Test whether primer3 exists on this system:')
+    print (test_primer3_exists())
     
-    print (check_individual_primers(['TACGATCGATGCTACGAGTAA', 'TACGATCGATGCTACGAGTAAA', 'TACGATCGATGCTACGAGTAAAA']))
-    print (check_paired_primers(('TACTAGCGCTAGTCGACGTAC', 'TGACGAGCAGCTGTGTGTGA')))
+    print ('Check output of individual primers:')
+    indiv_primers = check_individual_primers(
+        ['TACTAGCGCTAGTCGACGTAC', 'TACTAGCGCTAGTCGACGTACC'])
+    pprint.pprint(indiv_primers)
+    
+    print ('Check output of paired primers:')
+    paired_primers = check_paired_primers(('TACTAGCGCTAGTCGACGTAC', 'TGACGAGCAGCTGTGTGTGA'))
+    pprint.pprint(paired_primers)
