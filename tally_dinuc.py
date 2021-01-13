@@ -4,27 +4,27 @@
 > tally_dinuc.py <
 
 Script to tally the proportion of dinucleotides in a FASTA/FASTQ file.
-Supports opening gzipped files with the --gzip / -g flag.
+Supports opening gzipped files with the appropriate suffix (.gz).
 
 Valid dinucleotides are [ACGT]/[ACGT]. Script will also tally GC% in valid
 dinucleotides (i.e. excluding bases that are before or after degenerate bases).
 """
 import argparse
 import collections
+from pathlib import Path
 
 import parse_fasta
 
 parser = argparse.ArgumentParser(description="""
 Script to tally the proportion of dinucleotides in a FASTA/FASTQ file.
-Supports opening gzipped files with the --gzip / -g flag.""")
+Supports opening gzipped files with the appropriate suffix (.gz).""")
 
-parser.add_argument('fasta_files', metavar='fasta_files',
-                    type=argparse.FileType('r'), nargs='+',
-                    help='FASTA files that will be tallied.')
-parser.add_argument('--fastq', action='store_true', default=False,
-                    help='Tallied files are FASTQ, not FASTA.')
-parser.add_argument('--gzip', '-g', action='store_true', default=False,
-                    help='Tallied files are gzip-compressed.')
+parser.add_argument(
+    'fasta_files', metavar='fasta_files', type=Path, nargs='+',
+    help='FASTA files that will be tallied.')
+parser.add_argument(
+    '--fastq', action='store_true', default=False,
+    help='Tallied files are FASTQ, not FASTA.')
 
 args = parser.parse_args()
 
@@ -35,7 +35,6 @@ for f in args.fasta_files:
     
     base_composition = collections.Counter()
     seqs = parse_fasta.get_all_sequences(f, 'fastq' if args.fastq else 'fasta',
-                                         gzip_compressed=args.gzip,
                                          sequences_only=True)
     
     for s in seqs:
@@ -67,6 +66,6 @@ for f in args.fasta_files:
             print (i + j, base_composition[i + j], int(exp), sep='\t')
     
     print ('sum', all_dinucs, sep='\t')
-    cg_pct = (mononucs['C'] + mononucs['G']) / sum(mononucs.values()) * 100
-    print ('CG%', round(cg_pct, 2), sep='\t')
+    gc_pct = (mononucs['C'] + mononucs['G']) / sum(mononucs.values()) * 100
+    print ('GC%', round(gc_pct, 2), sep='\t')
     print ()

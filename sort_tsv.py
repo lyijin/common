@@ -61,8 +61,11 @@ if args.verbose:
     else:
         benchmark_print('Headers: present')
 
-# read data
-df = pd.read_table(args.tsv_file, header=None if args.noheader else 0)
+# read data. dtype is forced to str to prevent floats getting increased
+# precision when printed out
+df = pd.read_table(args.tsv_file,
+                   header=None if args.noheader else 0,
+                   dtype=str)
 
 # define which columns are value-containing. if user provided values for -c,
 # respect that and don't auto-infer
@@ -73,14 +76,10 @@ if not args.col:
 if args.verbose:
     benchmark_print(f'Value-containing columns: {args.col}')
 
-# check whether columns are non-numeric (type 'object')
+# as all columns is read as str, they have to be coerced into numeric
 temp = df.iloc[:, args.col].copy()
 temp_nonnumeric_cols = temp.select_dtypes('object').columns.to_list()
 if temp_nonnumeric_cols:
-    # there are non-numeric columns. coerce them into numeric
-    if args.verbose:
-        benchmark_print(f'Columns with non-numeric data: {temp_nonnumeric_cols}')
-    
     for tnc in temp_nonnumeric_cols:
         temp[tnc] = pd.to_numeric(temp[tnc], errors='coerce')
 
@@ -101,3 +100,6 @@ df.columns = df_cols
 
 # print content
 print (df.to_csv(sep='\t', header=not args.noheader, index=False), end='')
+
+if args.verbose:
+    benchmark_print(f'Finished sorting')
