@@ -54,6 +54,9 @@ def slice_sequence(sequence, startpos, endpos):
     
     return sliced_sequence
 
+def wrap_sequence(sequence, width):
+    return '\n'.join(sequence[i:i+width] for i in range(0, len(sequence), width))
+
 if __name__ == '__main__':
     import argparse
     
@@ -62,34 +65,41 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="""
     Script takes in FASTA file, picks reads that are in the included list (by
     default, all reads are included) and removes those in the excluded list.""")
+    
     parser.add_argument('reads_file', metavar='reads_file',
                         type=argparse.FileType('r'), nargs='?',
                         default=sys.stdin, help='FASTA/collapsed FASTA file')
     parser.add_argument('--fastq', action='store_true',
-                        help='input is a FASTQ file, not FASTA.')
+                        help='input is a FASTQ file, not FASTA')
     parser.add_argument('--include', metavar='reads_file',
                         type=argparse.FileType('r'), nargs='+',
-                        help='only calculate stats of reads in the given files')
+                        help='include reads with annots in the given files')
     parser.add_argument('--exclude', metavar='reads_file',
                         type=argparse.FileType('r'), nargs='+',
-                        help='exclude stats of reads in the given files')
+                        help='exclude reads with annots in the given files')
     parser.add_argument('--contain', metavar='list_of_strings',
                         type=str, nargs='+',
                         help='pick reads that contain specified string')
+    parser.add_argument('--donotcontain', metavar='list_of_strings',
+                        type=str, nargs='+',
+                        help='pick reads that do not contain specified string')
     parser.add_argument('--min', metavar='n', type=int,
-                        help='exclude reads with length < n bp.')
+                        help='exclude reads with length < n bp')
     parser.add_argument('--max', metavar='n', type=int,
-                        help='exclude reads with length > n bp.')
+                        help='exclude reads with length > n bp')
     parser.add_argument('--start', metavar='n', type=int,
-                        help='get sequences from position n.')
+                        help='get sequences from position n')
     parser.add_argument('--end', metavar='n', type=int,
-                        help='get sequences to position n.')
+                        help='get sequences to position n')
+    parser.add_argument('--wrap', metavar='n', type=int,
+                        help='wrap sequences with line width of n')
     parser.add_argument('--longest', metavar='regex_string',
-                        help='pick longest read based on annotation.')
+                        help='pick longest read based on annotation')
     parser.add_argument('--nosort', action='store_true',
-                        help='disable natural sorting of read file.')
+                        help='disable natural sorting of read file')
     parser.add_argument('--order_include', action='store_true',
-                        help='follow order of singular file in --include.')
+                        help='follow order of singular file in --include')
+
     
     args = parser.parse_args()
     
@@ -127,7 +137,11 @@ if __name__ == '__main__':
     if args.contain:
         included_reads = [x for x in included_reads if
                           any(c in x for c in args.contain)]
-
+    
+    if args.donotcontain:
+        included_reads = [x for x in included_reads if
+                          all(c not in x for c in args.donotcontain)]
+    
     if args.min:
         included_reads = [x for x in included_reads if
                           len(sequences[x]) >= args.min]
@@ -172,4 +186,7 @@ if __name__ == '__main__':
         if args.start and args.end:
             seq = slice_sequence(seq, args.start, args.end)
             
-        print (seq)
+        if args.wrap:
+            print (wrap_sequence(seq, args.wrap))
+        else:
+            print (seq)
