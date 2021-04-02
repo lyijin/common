@@ -57,20 +57,22 @@ for f in filenames:
     if f not in blast_dict:
         print (f, 'not found in hardcoded input file!')
     else:
-        db_filename = blast_dict[f][2]
+        db_type, db_title, db_filename = blast_dict[f]
         
         # crude way to determine whether file is gzipped or not
         if db_filename[-3:] == '.gz':
-            sequences = gzip.open(blast_dict[f][2], 'rt').read()
+            sequences = gzip.open(db_filename, 'rt').read()
         else:
-            sequences = open(blast_dict[f][2]).read()
+            sequences = open(db_filename).read()
         
-        # replace/remove stop codons appropriately
-        # note: while these steps can be easily accomplished with sed (via
-        #       subprocess), there's a chance that malicious filenames might
-        #       compromise the system        
-        sequences = re.sub('\*\n>', '\n>', sequences)
-        sequences = re.sub('\*', 'X', sequences)
+        if db_type == 'prot':
+            # replace/remove stop codons appropriately
+            # note: while these steps can be easily accomplished with sed (via
+            #       subprocess), there's a chance that malicious filenames might
+            #       compromise the system
+            sequences = re.sub(r'\*\n>', '\n>', sequences)
+            sequences = re.sub(r'\*\r\n>', '\r\n>', sequences)   # deal with CRLF
+            sequences = re.sub(r'\*', 'X', sequences)
         
         with tempfile.NamedTemporaryFile() as tf:
             tf.write(sequences.encode())
@@ -78,9 +80,8 @@ for f in filenames:
             
             subprocess.run(['makeblastdb', '-in', tf.name,
                                            '-out', f,
-                                           '-dbtype', blast_dict[f][0],
-                                           '-title', blast_dict[f][1], 
+                                           '-dbtype', db_type,
+                                           '-title', db_title,
                                            '-parse_seqids'])
         
-        print ('SUCCESS: database {} created, with type {} and title "{}"'.format(
-            f, blast_dict[f][0], blast_dict[f][1]))
+        print (f'SUCCESS: database {f} created, with type {db_type} and title "{db_title}"')

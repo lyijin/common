@@ -15,7 +15,12 @@ gfas_genome	nucl	Galaxea fascicularis genome (ReFuGe 2020)	/home/liewy/kaust/ref
 gfas_prots	prot	Galaxea fascicularis gene models (ReFuGe 2020)	/home/liewy/kaust/refuge2020/gfas_1.0.proteins.fasta.gz
 plut_genome	nucl	Porites lutea genome (ReFuGe 2020)	/home/liewy/kaust/refuge2020/plut_final_2.1.fasta.gz
 plut_prots	prot	Porites lutea gene models (ReFuGe 2020)	/home/liewy/kaust/refuge2020/plut2v1.1.proteins.fasta.gz
-pspe_genome	nucl	Pachyseris speciosa genome (ReFuGe 2020)	/home/liewy/kaust/refuge2020/pspe_final_0.1.fasta.gz
+pspe_genome	nucl	Pachyseris speciosa genome (Bongaerts, 2021)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/pspe/download/pspe_final_0.12.fasta.gz
+pspe_prots	prot	Pachyseris speciosa gene models (Bongaerts, 2021)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/pspe/download/pspe_0.12.maker_post_002.proteins.fasta.gz
+pspe_tx_models	nucl	Pachyseris speciosa gene models (Bongaerts, 2021)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/pspe/download/pspe_0.12.maker_post_002.transcripts.fasta.gz
+aequ_genome	nucl	Actinia equina genome (Wilding, 2020)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/aequ/download/equina_smartden.arrow4.noredun.fa.gz
+aequ_prots	prot	Actinia equina gene models (Wilding, 2020)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/aequ/download/equina_smart.rnam-trna.merged.ggf.curated.remredun.aa.fa.gz
+aequ_tx_models	nucl	Actinia equina gene models (Wilding, 2020)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/aequ/download/equina_smart.rnam-trna.merged.ggf.curated.remredun.nucl.fa.gz
 pdae_genome	nucl	Platygyra daedalea genome (Wang, unpubl.)	
 pdae_prots	prot	Platygyra daedalea gene models (Wang, unpubl.)	
 cc7_genome	nucl	Aiptasia CC7 genome (Nagarajan, unpubl.)	/mnt/c/Yi/KAUST_postdoc/reefgenomics/aiptasiav2/download/CC7v2_R6_locked.scaffolds.ptmasked.fa.gz
