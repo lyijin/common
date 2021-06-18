@@ -35,6 +35,8 @@ parser.add_argument('--coverage', action='store_true',
                     help='plot coverage plots instead of betas.')
 parser.add_argument('--all', action='store_true',
                     help='plots each file vs. all other files.')
+parser.add_argument('-s', '--save_filename', type=str, default='output.pdf',
+                    help='change default name (and extension) of saved plot.')
 args = parser.parse_args()
 
 # sanity checks
@@ -159,5 +161,5 @@ sns.despine(offset=5, trim=True)
 fig = plt.gcf()
 
 # without bbox_inches, the saved figure has truncated axes.
-output_filename = 'output.pdf'
+output_filename = args.save_filename
 fig.savefig(output_filename, bbox_inches='tight')
