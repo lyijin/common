@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""
+doc = """
 > parse_mpileup_tsvs.py <
 
 Script parses mpileup tsvs (or compressed tsvs) and outputs, in tabular form:
@@ -30,7 +30,8 @@ numbers, see https://github.com/samtools/samtools/issues/1129.
   -d, --max-depth INT     max per-file depth; avoids excessive memory usage [8000]
   -Q, --min-BQ INT        skip bases with baseQ/BAQ smaller than INT [13]
   -x, --ignore-overlaps   disable read-pair overlap detection
-"""
+""".strip()
+
 import argparse
 import csv
 import gzip
@@ -46,28 +47,8 @@ def benchmark_print(message):
     """
     print (f'[{time.asctime()}] {message}', file=sys.stderr)
 
-parser = argparse.ArgumentParser(description="""
-Script parses mpileup tsvs (or compressed tsvs) and outputs, in tabular form:
-
-  0. scaffold name
-  1. coord
-  2. total per-base coverage
-  3. reads mapping to Watson strand (+) of reference
-  4. reads mapping to Crick strand (-) of reference
-  5. number of A bases at coordinate
-  6. number of C bases at coordinate
-  7. number of G bases at coordinate
-  8. number of T bases at coordinate
-  (note: Ns are not considered)
-
-Input tables are assumed to be produced with the command
-  `samtools mpileup -A -B -d 0 -Q 0 -x ${file} | gzip > ${output_file}`
-
-The reason behind the flags is that `samtools mpileup` tries to filter for
-"good quality" bases, but `samtools depth` just calculates the depth, quality
-be damned. Using both tools with default settings will result in different
-numbers, see https://github.com/samtools/samtools/issues/1129.""",
-formatter_class=argparse.RawTextHelpFormatter)
+parser = argparse.ArgumentParser(description=doc,
+                                 formatter_class=argparse.RawTextHelpFormatter)
 
 parser.add_argument('mpileup_tsv', metavar='mpileup_tsv', type=Path,
                     nargs='?', default=sys.stdin,
@@ -80,11 +61,13 @@ args = parser.parse_args()
 # check whether input file has ".gz" at the end; if it has, then file is 
 # assumed to be gzip-compressed
 if args.mpileup_tsv.name == '<stdin>':
-    tsv_reader = csv.reader(args.mpileup_tsv, delimiter='\t')
+    tsv_reader = csv.reader(args.mpileup_tsv, delimiter='\t', quoting=csv.QUOTE_NONE)
 elif args.mpileup_tsv.suffix == '.gz':
-    tsv_reader = csv.reader(gzip.open(args.mpileup_tsv, 'rt'), delimiter='\t')
+    tsv_reader = csv.reader(gzip.open(args.mpileup_tsv, 'rt'), delimiter='\t',
+                            quoting=csv.QUOTE_NONE)
 else:
-    tsv_reader = csv.reader(open(args.mpileup_tsv), delimiter='\t')
+    tsv_reader = csv.reader(open(args.mpileup_tsv), delimiter='\t',
+                            quoting=csv.QUOTE_NONE)
 
 if args.verbose:
     benchmark_print('Parsing {args.mpileup_tsv.name}...')
