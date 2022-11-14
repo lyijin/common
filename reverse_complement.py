@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
 
-"""
+docstring = """
 > reverse_complement.py <
 
 Does what it says on the tin: reverse-complements the input sequence.
 Autodetects input file formats of
 
   1. One-sequence-per-line
-  2. Tab-separated: annot \t seq
-  3. FASTA: >annot \n seq
+  2. Tab-separated: annot (tab) seq
+  3. FASTA: >annot (newline) seq
+  4. FASTQ: @annot (newline) seq (newline) + (newline) basequals
 
 Use flags to override detected file format. Files must be in plaintext.
-"""
+
+Note that reverse-complementing FASTQs is a "hack", as the quality string is
+reversed. Sequence qualities of these reverse-complemented sequences would thus
+be progressively better going down the sequence, which is not "real".
+""".strip()
 
 import argparse
+import gzip
 import itertools
 from pathlib import Path
 import sys
@@ -23,6 +29,15 @@ def pairwise(iterable):
     a, b = itertools.tee(iterable)
     next(b, None)
     return zip(a, b)
+
+def quadwise(iterable):
+    """s -> (s0,s1,s2,s3), (s4,s5,s6,s7), ..."""
+    assert len(iterable) / 4 == int(len(iterable) / 4), \
+        f'Input file has {len(iterable)} lines which is not divisible by 4.'
+    
+    output = [iterable[n:n+4] for n in range(0, len(iterable), 4)]
+    
+    return output
 
 def rc_single(seq):
     seq = seq.replace('U', 'T')
@@ -88,6 +103,26 @@ def rc_fasta(fasta_input):
     
     return '\n'.join(output)
 
+def rc_fastq(fastq_input):
+    output = []
+    
+    annot = ''
+    for annot, seq, _, basequals in quadwise(fastq_input.splitlines()):
+        # pass annot line as-is
+        output.append(annot.strip())
+        
+        # revcomp sequence line
+        output.append(rc_single(seq.strip()))
+        
+        # pass the + line as-is
+        output.append(_.strip())
+        
+        # reverse quality line
+        output.append(basequals.strip()[::-1])
+    
+    return '\n'.join(output)
+    
+
 def rc_autodetect(input_string):
     """
     Make an intelligent guess on what the input file format is, and call the
@@ -97,39 +132,49 @@ def rc_autodetect(input_string):
         return rc_tabseparated(input_string)
     elif input_string[0] == '>':
         return rc_fasta(input_string)
+    elif input_string[0] == '@':
+        return rc_fastq(input_string)
     else:
         return rc_oneperline(input_string)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="""
-    Python script translates FASTA file containing DNA/RNA sequences into
-    protein sequences, appending _+1/2/3 or _-1/-2/-3 based on the frame being
-    translated. Standard genetic code is assumed.""")
+    parser = argparse.ArgumentParser(
+        description=docstring, formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('input_file', metavar='plaintext_file',
                         type=Path, default=sys.stdin.fileno(), nargs='?',
                         help='nucleotide sequence-containing plain text file.')
+    parser.add_argument('-z', '--gzip', action='store_true',
+                        help='text file is gzip-compressed.')
     filetype_opt = parser.add_mutually_exclusive_group(required=False)
     filetype_opt.add_argument('--oneperline', action='store_const',
                           dest='filetype', const='oneperline',
-                          help='file contains a single sequence per line')
+                          help='file contains a single sequence per line.')
     filetype_opt.add_argument('--tabseparated', action='store_const',
                           dest='filetype', const='tabseparated',
-                          help='file is tab-separated, "annot \\t seq"')
+                          help='file is tab-separated, "annot \\t seq".')
     filetype_opt.add_argument('--fasta', action='store_const',
                           dest='filetype', const='fasta',
-                          help='file is FASTA-formatted')
+                          help='file is FASTA-formatted.')
+    filetype_opt.add_argument('--fastq', action='store_const',
+                          dest='filetype', const='fastq',
+                          help='file is FASTQ-formatted.')
     
     args = parser.parse_args()
     
-    input_string = open(args.input_file).read()
+    if args.input_file.suffix == '.gz' or args.gzip:
+        input_string = gzip.open(args.input_file.name).read().decode('utf-8')
+    else:
+        input_string = open(args.input_file).read()
     
-    if args.filetype == 'tabseparated':
+    if args.filetype == 'oneperline':
+        rc = rc_oneperline(input_string)
+    elif args.filetype == 'tabseparated':
         rc = rc_tabseparated(input_string)
     elif args.filetype == 'fasta':
         rc = rc_fasta(input_string)
-    elif args.filetype == 'oneperline':
-        rc = rc_oneperline(input_string)
+    elif args.filetype == 'fastq':
+        rc = rc_fastq(input_string)
     else:
         rc = rc_autodetect(input_string)
     
