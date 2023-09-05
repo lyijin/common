@@ -96,14 +96,14 @@ def calc_endstab(left_seq, right_seq, mv, dv, d, n):
     more stable deltaG of f(seq1, seq1) vs. f(seq1, seq2).
     """
     # deconvolute sequence, as it might contain degenerate bases
-    all_left_seq = get_all_degenerate_possibilities(left_seq)
-    all_right_seq = get_all_degenerate_possibilities(right_seq)
+    all_left_seq = get_all_degenerate_possibilities(left_seq.upper())
+    all_right_seq = get_all_degenerate_possibilities(right_seq.upper())
     
     temp = {}
     for seq1 in all_left_seq + all_right_seq:
         temp[seq1] = {'max_tm': -999.99, 'min_dg': 9999999.99}
         for seq2 in all_left_seq + all_right_seq:
-            e = primer3.bindings.calcEndStability(
+            e = primer3.bindings.calc_end_stability(
                 seq1, seq2, mv_conc=mv, dv_conc=dv, dntp_conc=n, dna_conc=d)
             temp[seq1]['max_tm'] = max(temp[seq1]['max_tm'], e.tm)
             temp[seq1]['min_dg'] = min(temp[seq1]['min_dg'], e.dg)
@@ -126,34 +126,34 @@ def calc_primer_stats(left_seq, right_seq=None, oneliner=False,
     For paired primers, also calculate heterodimer dG.
     """
     # deconvolute sequence, as it might contain degenerate bases
-    all_left_seq = get_all_degenerate_possibilities(left_seq)
+    all_left_seq = get_all_degenerate_possibilities(left_seq.upper())
     
-    left_tm = [primer3.calcTm(x, mv_conc=mv, dv_conc=dv, 
-                              dntp_conc=n, dna_conc=d)
+    left_tm = [primer3.calc_tm(x, mv_conc=mv, dv_conc=dv, 
+                               dntp_conc=n, dna_conc=d)
                for x in all_left_seq]
-    left_hairpin = [primer3.calcHairpin(x, mv_conc=mv, dv_conc=dv,
-                                        dntp_conc=n, dna_conc=d).dg
+    left_hairpin = [primer3.calc_hairpin(x, mv_conc=mv, dv_conc=dv,
+                                         dntp_conc=n, dna_conc=d).dg
                     for x in all_left_seq]
-    left_homodimer = [primer3.calcHomodimer(x, mv_conc=mv, dv_conc=dv,
-                                            dntp_conc=n, dna_conc=d).dg
+    left_homodimer = [primer3.calc_homodimer(x, mv_conc=mv, dv_conc=dv,
+                                             dntp_conc=n, dna_conc=d).dg
                       for x in all_left_seq]
     
     if right_seq:
         # deconvolute sequence, as it might contain degenerate bases
-        all_right_seq = get_all_degenerate_possibilities(right_seq)
+        all_right_seq = get_all_degenerate_possibilities(right_seq.upper())
         
-        right_tm = [primer3.calcTm(x, mv_conc=mv, dv_conc=dv, 
-                                  dntp_conc=n, dna_conc=d)
+        right_tm = [primer3.calc_tm(x, mv_conc=mv, dv_conc=dv, 
+                                    dntp_conc=n, dna_conc=d)
                    for x in all_right_seq]
-        right_hairpin = [primer3.calcHairpin(x, mv_conc=mv, dv_conc=dv,
-                                            dntp_conc=n, dna_conc=d).dg
+        right_hairpin = [primer3.calc_hairpin(x, mv_conc=mv, dv_conc=dv,
+                                              dntp_conc=n, dna_conc=d).dg
                         for x in all_right_seq]
-        right_homodimer = [primer3.calcHomodimer(x, mv_conc=mv, dv_conc=dv,
-                                                dntp_conc=n, dna_conc=d).dg
+        right_homodimer = [primer3.calc_homodimer(x, mv_conc=mv, dv_conc=dv,
+                                                  dntp_conc=n, dna_conc=d).dg
                           for x in all_right_seq]
         
-        heterodimer = [primer3.calcHeterodimer(x, y, mv_conc=mv, dv_conc=dv,
-                                               dntp_conc=n, dna_conc=d).dg
+        heterodimer = [primer3.calc_heterodimer(x, y, mv_conc=mv, dv_conc=dv,
+                                                dntp_conc=n, dna_conc=d).dg
                        for y in all_right_seq for x in all_left_seq]
         endstab = calc_endstab(left_seq, right_seq, mv, dv, d, n)
     else:

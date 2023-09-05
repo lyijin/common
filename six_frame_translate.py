@@ -1,24 +1,17 @@
 #!/usr/bin/env python3
 
-"""
+docstring = """
 > six_frame_translate.py <
 
 Translate FASTA file containing DNA/RNA sequences into protein sequences,
 appending _+1/2/3 or _-1/-2/-3 based on the frame being translated.
 
 Assumes standard genetic code.
-
-OPTIONS:
-  --longest to get the longest ORF (Met to Stop / end of sequences) in the
-  nucleotide sequences.
-
-  --relaxed to relax the requirement of Met to start of sequence /
-  non-Stop codon.
-
-  --nt to get nucleotide output instead of protein sequences.
-"""
+""".strip()
 
 import argparse
+import gzip
+from pathlib import Path
 import re
 import sys
 
@@ -128,14 +121,14 @@ def natural_sort(input_list):
     return sorted_list
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="""
-    Python script translates FASTA file containing DNA/RNA sequences into
-    protein sequences, appending _+1/2/3 or _-1/-2/-3 based on the frame being
-    translated. Standard genetic code is assumed.""")
-
-    parser.add_argument('infile', metavar="nucleotide_fasta_file",
-                        type=argparse.FileType('r'), nargs='?',
-                        default=sys.stdin, help="nucleotide FASTA file.")
+    parser = argparse.ArgumentParser(
+        description=docstring, formatter_class=argparse.RawTextHelpFormatter)
+    
+    parser.add_argument('input_file', metavar='plaintext_file',
+                        type=Path, default=sys.stdin.fileno(), nargs='?',
+                        help='nucleotide sequence-containing plain text file.')
+    parser.add_argument('-z', '--gzip', action='store_true',
+                        help='text file is gzip-compressed.')
     parser.add_argument('--longest', action='store_true',
                         help='find the longest ORF among the six frames.')
     parser.add_argument('--relaxed', action='store_true',
@@ -144,21 +137,39 @@ if __name__ == '__main__':
                         help='print equivalent nucleotide sequences.')
     parser.add_argument('--print_length', action='store_true',
                         help='include the length of the sequence in the annot.')
-    parser.add_argument('--nosort', action='store_true',
-                        help='disable natural sorting on output.')
-
+    parser.add_argument('--sort_seqs', action='store_true',
+                        help='enable natural sorting on output.')
+    filetype_opt = parser.add_mutually_exclusive_group(required=False)
+    filetype_opt.add_argument('--fasta', action='store_const',
+                          dest='filetype', const='fasta',
+                          help='file is FASTA-formatted.')
+    filetype_opt.add_argument('--fastq', action='store_const',
+                          dest='filetype', const='fastq',
+                          help='file is FASTQ-formatted.')
+    
     args = parser.parse_args()
-
-    fasta_seqs = parse_fasta.get_all_sequences(args.infile, 'fasta')
-
-    if args.nosort:
-        sorted_seqs = fasta_seqs
+    
+    if args.input_file.suffix == '.gz' or args.gzip:
+        input_string = gzip.open(args.input_file.name).read().decode('utf-8')
     else:
-        sorted_seqs = natural_sort(fasta_seqs)
+        input_string = open(args.input_file).read()
+    
+    # assume default filetype is fasta (captured by the 'else')
+    if args.filetype == 'fastq':
+        fasta_seqs = parse_fasta.get_all_sequences(args.input_file, 'fastq')
+    else:
+        fasta_seqs = parse_fasta.get_all_sequences(args.input_file, 'fasta')
+
+    if args.sort_seqs:
+        fasta_seqs = natural_sort(fasta_seqs)
+    else:
+        fasta_seqs = fasta_seqs
 
     if args.longest:
-        for s in sorted_seqs:
-            print (find_longest_orf(s, fasta_seqs[s], relaxed=args.relaxed, display_length=args.print_length))
+        for s in fasta_seqs:
+            print (find_longest_orf(s, fasta_seqs[s], relaxed=args.relaxed, 
+                                    display_length=args.print_length))
     else:
-        for s in sorted_seqs:
-            print (six_frame_translate(s, fasta_seqs[s], get_nt_seq=args.nt, display_length=args.print_length))
+        for s in fasta_seqs:
+            print (six_frame_translate(s, fasta_seqs[s], get_nt_seq=args.nt,
+                                       display_length=args.print_length))

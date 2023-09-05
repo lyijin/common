@@ -121,7 +121,6 @@ def rc_fastq(fastq_input):
         output.append(basequals.strip()[::-1])
     
     return '\n'.join(output)
-    
 
 def rc_autodetect(input_string):
     """
