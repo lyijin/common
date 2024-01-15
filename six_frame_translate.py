@@ -17,10 +17,9 @@ import sys
 
 import parse_fasta
 
-# code taken from http://www.petercollingridge.co.uk/blog/python-codon-table
-bases = ['T', 'C', 'A', 'G']
-codons = [a+b+c for a in bases for b in bases for c in bases]
-amino_acids = 'FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG'
+
+codons = [a+b+c for a in 'ACGT' for b in 'ACGT' for c in 'ACGT']
+amino_acids = 'KNKNTTTTRSRSIIMIQHQHPPPPRRRRLLLLEDEDAAAAGGGGVVVV*Y*YSSSS*CWCLFLF'
 codon_table = dict(zip(codons, amino_acids))
 
 def get_aa(codon):
@@ -139,6 +138,8 @@ if __name__ == '__main__':
                         help='include the length of the sequence in the annot.')
     parser.add_argument('--sort_seqs', action='store_true',
                         help='enable natural sorting on output.')
+    parser.add_argument('--amber_suppression', action='store_true',
+                        help='use a codon table where amber (UAG) is Q.')
     filetype_opt = parser.add_mutually_exclusive_group(required=False)
     filetype_opt.add_argument('--fasta', action='store_const',
                           dest='filetype', const='fasta',
@@ -159,12 +160,21 @@ if __name__ == '__main__':
         fasta_seqs = parse_fasta.get_all_sequences(args.input_file, 'fastq')
     else:
         fasta_seqs = parse_fasta.get_all_sequences(args.input_file, 'fasta')
-
+    
+    # sort sequences?
     if args.sort_seqs:
         fasta_seqs = natural_sort(fasta_seqs)
     else:
         fasta_seqs = fasta_seqs
-
+    
+    # amber suppression?
+    if args.amber_suppression:
+        # overwrite default codon table, defined at the start of the script
+        codons = [a+b+c for a in 'ACGT' for b in 'ACGT' for c in 'ACGT']
+        amino_acids = 'KNKNTTTTRSRSIIMIQHQHPPPPRRRRLLLLEDEDAAAAGGGGVVVV*YQYSSSS*CWCLFLF'
+        #                                         TAG is Q, not stop --> *
+        codon_table = dict(zip(codons, amino_acids))
+    
     if args.longest:
         for s in fasta_seqs:
             print (find_longest_orf(s, fasta_seqs[s], relaxed=args.relaxed, 

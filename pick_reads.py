@@ -95,8 +95,10 @@ if __name__ == '__main__':
                         help='wrap sequences with line width of n')
     parser.add_argument('--longest', metavar='regex_string',
                         help='pick longest read based on annotation')
+    parser.add_argument('--alphasort', action='store_true',
+                        help='sort sequences alphabetically (chr11, chr2)')
     parser.add_argument('--nosort', action='store_true',
-                        help='disable natural sorting of read file')
+                        help='disable sorting of read file')
     parser.add_argument('--order_include', action='store_true',
                         help='follow order of singular file in --include')
 
@@ -171,7 +173,9 @@ if __name__ == '__main__':
             # debug:
             # print (longest_read, len(sequences[longest_read]), [len(sequences[x]) for x in short_annot[s]])
 
-    if args.nosort:
+    if args.alphasort:
+        sorted_reads = sorted(included_reads)
+    elif args.nosort:
         sorted_reads = [s for s in sequences if s in included_reads]
     elif args.order_include:
         # rewind to start of file
