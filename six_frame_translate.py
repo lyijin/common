@@ -126,8 +126,6 @@ if __name__ == '__main__':
     parser.add_argument('input_file', metavar='plaintext_file',
                         type=Path, default=sys.stdin.fileno(), nargs='?',
                         help='nucleotide sequence-containing plain text file.')
-    parser.add_argument('-z', '--gzip', action='store_true',
-                        help='text file is gzip-compressed.')
     parser.add_argument('--longest', action='store_true',
                         help='find the longest ORF among the six frames.')
     parser.add_argument('--relaxed', action='store_true',
@@ -149,11 +147,6 @@ if __name__ == '__main__':
                           help='file is FASTQ-formatted.')
     
     args = parser.parse_args()
-    
-    if args.input_file.suffix == '.gz' or args.gzip:
-        input_string = gzip.open(args.input_file.name).read().decode('utf-8')
-    else:
-        input_string = open(args.input_file).read()
     
     # assume default filetype is fasta (captured by the 'else')
     if args.filetype == 'fastq':

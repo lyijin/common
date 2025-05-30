@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 docstring = """
-> tally_ACGTN.py <
+> tally_aa.py <
 
-Script to tally the proportion of A/C/G/T/N bases in a FASTA/FASTQ file.
+Script to tally the proportion of amino acids in a FASTA/FASTQ file.
 
-N = any degenerate base (R/Y/...), not just "N"
+X = any degenerate aa
+* = stop codon
 """
 import argparse
 import collections
@@ -24,8 +25,10 @@ parser.add_argument('--fastq', action='store_true', default=False,
 
 args = parser.parse_args()
 
+valid_aa = 'ACDEFGHIKLMNPQRSTVWY*X'
+
 # header row
-print ('File', 'A', 'C', 'G', 'T', 'N', 'ACGT', 'ACGTN', 'GC%', sep='\t')
+print ('File', *valid_aa, sep='\t')
 
 for f in args.fasta_files:
     base_composition = collections.Counter()
@@ -35,15 +38,5 @@ for f in args.fasta_files:
     for s in seqs:
         base_composition += collections.Counter(s.upper())
     
-    a = base_composition['A']
-    c = base_composition['C']
-    g = base_composition['G']
-    t = base_composition['T']
-    acgt = a + c + g + t
-    acgtn = sum(base_composition.values())
-    non_acgt = acgtn - acgt
-
-    gc_pct = round((c + g) / acgt * 100, 3)
-    
     # print results out
-    print (f.name, a, c, g, t, non_acgt, acgt, acgtn, gc_pct, sep='\t')
+    print (f.name, *[base_composition[x] for x in valid_aa], sep='\t')
