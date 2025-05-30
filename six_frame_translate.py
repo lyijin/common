@@ -89,9 +89,9 @@ def find_longest_orf(annot, seq, relaxed=False, display_length=False):
     longest_in_fr = {}
     for fr in [1, 2, 3, -1, -2, -3]:
         if relaxed:
-            all_orfs = re.findall('[^\*]+', peptide_sequence(seq, fr))
+            all_orfs = re.findall(r'[^\*]+', peptide_sequence(seq, fr))
         else:
-            all_orfs = re.findall('M[^\*]+', peptide_sequence(seq, fr))
+            all_orfs = re.findall(r'M[^\*]+', peptide_sequence(seq, fr))
 
         if all_orfs:
             longest_in_fr[fr] = max(all_orfs, key=len)
