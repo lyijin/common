@@ -35,6 +35,8 @@ parser.add_argument('--key', '-k', metavar='key_columns',
                     help='(0-based) columns as keys (default: 0).')
 parser.add_argument('--col', '-c', metavar='retained_columns', type=int, nargs='+',
                     help='(0-based) columns as values (default: all except -k).')
+parser.add_argument('--comment', metavar='comment_chars', type=str,
+                    help='skip lines starting with comment chars.')
 parser.add_argument('--how', default='left',
                     help='specify how to join tsvs: left/right/outer/inner (default: left).')
 parser.add_argument('--fillna',
@@ -87,7 +89,8 @@ for n, tsv_file in enumerate(args.tsv_files):
         tsv_file,
         header=0 if args.header else None, 
         usecols=None if not maxwidth else range(0, maxwidth + 1),
-        dtype='string[pyarrow]' if args.mem_efficient else 'string')
+        dtype='string[pyarrow]' if args.mem_efficient else 'string',
+        comment=args.comment)
     
     # manipulate dataframe if args.col is not None, or when args.key isn't [0]
     if args.col:
