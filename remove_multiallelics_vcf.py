@@ -27,10 +27,10 @@ I don't think so... from what I've found:
 
 It was a feature request for `bcftools`, but that flag seemed to have
 disappeared/changed its functionality over time.
-https://github.com/samtools/bcftools/issues/974
+  https://github.com/samtools/bcftools/issues/974
 
 `bcftools norm --rm-dup` seem to always pick the first of duplicated positions.
-https://samtools.github.io/bcftools/bcftools.html#norm
+  https://samtools.github.io/bcftools/bcftools.html#norm
 
 "Oh you can run `bcftools --multiallelics +snps` to join biallelic records into
 multiallelics and then cull it"--ugh gnomAD files are huge man, can't a simpler
@@ -77,7 +77,7 @@ else:
 for line in tsv_reader:
     # print all comment lines
     if line[0][0] == '#':
-        print (line)
+        print (*line, sep='\t')
         continue
 
     # for the first non-duplicated line
